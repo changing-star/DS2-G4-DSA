@@ -9,7 +9,7 @@
 #include <map>
 #include <list>
 #include <tuple>
-    
+#include <cstring>
 
 using namespace std;
 // detect OS
