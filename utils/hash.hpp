@@ -8,8 +8,6 @@
 
 using namespace std;
 
-
-
 string md5Hash(string input){
     unsigned char digest[MD5_DIGEST_LENGTH];
     MD5(reinterpret_cast<const unsigned char*>(input.c_str()), input.length(), digest);
