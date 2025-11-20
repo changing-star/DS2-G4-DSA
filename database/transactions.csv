@@ -1,0 +1,3 @@
+,transaction_id,user_id,book_id,transaction_type,transaction_time,related_transaction
+1,TR-01,USER-01,BID-01,BORROW,1763609673,NULL
+2,TR-02,USER-01,BID-01,RETURN,1763609900,TR-01
