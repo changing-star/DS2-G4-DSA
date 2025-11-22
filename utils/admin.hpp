@@ -41,12 +41,12 @@ class AdminList{
         }
 
         //Insert Front
-        void insertFront(string id, string adminId, string adminUsername, string adminPassword){
+        void insertFront(AdminData adminData){
 
         }
 
         //Insert Back
-        void insertBack(string id, string adminId, string adminUsername, string adminPassword){
+        void insertBack(AdminData adminData){
 
         }
 
@@ -94,6 +94,8 @@ class AdminList{
 
         //Load Admins from file
         void loadAdminFromFile(string filename){
+            bool firstLine = true;
+            
             ifstream file(filename);
             if(!file.is_open()){
                 cout << "Error opening file " << filename << endl;
@@ -101,9 +103,13 @@ class AdminList{
             }
 
             string line;
-            vector<AdminData> data;
 
             while(getline(file, line)){
+                if(firstLine){
+                    firstLine = false;
+                    continue;
+                }
+
                 istringstream iss(line);
                 int index;
                 string field;
@@ -117,15 +123,21 @@ class AdminList{
                     continue;
                 }
 
-                getline(iss, adminData.adminId, ',');
-                getline(iss, adminData.adminPassword, ',');
-
-                data.push_back(adminData);
-
+                if(getline(iss, adminData.adminId, ',') &&
+                    getline(iss, adminData.adminUsername, ',') &&
+                    getline(iss, adminData.adminPassword, ',')){
+                        AdminNode* newNode = new AdminNode(adminData);
+                        if(head == nullptr){
+                            head = tail = newNode;
+                        } else {
+                            tail->next = newNode;
+                            newNode->prev = tail;
+                            tail = newNode;
+                        }
+                        size++;
+                    }
             }
-
-
-            
+            file.close();
         }
 
         //Search and compare if user is the user 
