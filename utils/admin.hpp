@@ -47,9 +47,15 @@ class AdminList{
 
         //Insert Back
         void insertBack(AdminData adminData){
-
+            AdminNode* newNode = new AdminNode(adminData);
+            if(head == nullptr){
+                head = tail = newNode;
+            } else {
+                newNode->prev = tail;
+                tail->next = newNode;
+                tail = newNode;
+            };
         }
-
         //Display List of Admins
         void displayAdmin(){
 
