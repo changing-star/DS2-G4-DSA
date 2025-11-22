@@ -4,26 +4,31 @@
 
 //Maybe implemnet a binary search tree here so we can store it alphabetically automatically
 //Also probably change the booknode data into a struct because this is fucking ugly as shit
+
+struct BookData{
+    string bookID;
+    string bookTitle;
+    string bookAuthor;
+    string isbn;
+
+    int totalCopies;
+    int availableCopies;
+    bool availability;
+};
+
 class BookNode{
     private:
-        string bookID;
-        string bookTitle;
-        string bookAuthor;
-        string isbn;
-        int total_copies;
-        int available_copies;
-        bool availability;
-
+        BookData bookData;
         BookNode *left, *right;
     public:
-        BookNode(string bookID, string bookTitle, string bookAuthor, string isbn, int total_copies, int available_copies, bool status){
-            this->bookID = bookID;
-            this->bookTitle = bookTitle;
-            this->bookAuthor = bookAuthor;
-            this->isbn = isbn;
-            this->total_copies = total_copies;
-            this->available_copies = available_copies;
-            this->availability = status;
+        BookNode(BookData bookData){
+            this->bookData.bookID = bookData.bookID;
+            this->bookData.bookTitle = bookData.bookTitle;
+            this->bookData.bookAuthor = bookData.bookAuthor;
+            this->bookData.isbn = bookData.isbn;
+            this->bookData.totalCopies = bookData.totalCopies;
+            this->bookData.availableCopies = bookData.availableCopies;
+            this->bookData.availability = bookData.availability;
             this->left = this->right = nullptr;
         }
         friend class BookList;
@@ -34,24 +39,25 @@ class BookList{
         BookNode* root;
         int size;
 
-        BookNode *insertHelper(BookNode* node, string bookID, string bookTitle, string bookAuthor, string isbn, int total_copies, int available_copies, bool status){
+        BookNode *insertHelper(BookNode* node, BookData bookData){
             if (node==nullptr){
                 size++;
-                return new BookNode(bookID, bookTitle, bookAuthor, isbn, total_copies, available_copies, status);
+                return new BookNode(bookData);
             }
             
-            if (bookTitle < node->bookTitle){
-                node->left = insertHelper(node->left, bookID, bookTitle, bookAuthor, isbn, total_copies, available_copies, status);
-            } else if (bookTitle > node->bookTitle){
-                node->right = insertHelper(node->right, bookID, bookTitle, bookAuthor, isbn, total_copies, available_copies, status);
-            } else if (bookTitle == node->bookTitle){
-                node->bookID = bookID;
-                node-> bookTitle = bookTitle;
-                node->bookAuthor = bookAuthor;
-                node->isbn = isbn;
-                node->total_copies = total_copies;
-                node->availability = available_copies;
-                node->availability = status;
+            //String comparison
+            if (bookData.bookTitle < node->bookData.bookTitle){
+                node->left = insertHelper(node->left, bookData);
+            } else if (bookData.bookTitle > node->bookData.bookTitle){
+                node->right = insertHelper(node->right, bookData);
+            } else if (bookData.bookTitle == node->bookData.bookTitle){
+                node->bookData.bookID = bookData.bookID;
+                node->bookData.bookTitle = bookData.bookTitle;
+                node->bookData.bookAuthor = bookData.bookAuthor;
+                node->bookData.isbn = bookData.isbn;
+                node->bookData.totalCopies = bookData.totalCopies;
+                node->bookData.availableCopies = bookData.availableCopies;
+                node->bookData.availability = bookData.availability;
             }
 
             return node;
@@ -60,17 +66,17 @@ class BookList{
         BookNode *searchByIDHelper(BookNode *node, string id){
             if(node == NULL){
                 return nullptr;
-            } else if (id == node->bookID){
+            } else if (id == node->bookData.bookID){
                 return node;
-            } else if (id > node->bookID){
+            } else if (id > node->bookData.bookID){
                 return searchByIDHelper(node->right, id);
-            } else if (id < node->bookID){
+            } else if (id < node->bookData.bookID){
                 return searchByIDHelper(node->left, id);
             }
         }
     public:
-        BookList(string bookID, string bookTitle, string bookAuthor, string isbn , int total_copies, int available_copies, bool status){
-            root = new BookNode(bookID, bookTitle, bookAuthor, isbn, total_copies, available_copies, status);
+        BookList(BookData bookData){
+            root = new BookNode(bookData);
             size = 1;
         }
         BookList(){
@@ -97,8 +103,8 @@ class BookList{
         }
 
         //Insert book into a BST pre sorted lexographically
-        void insert(string id, string title, string author, string isbn, int total_copies, int available_copies, bool status){
-            root = insertHelper(root, id, title, author, isbn, total_copies, available_copies, status);
+        void insert(BookData bookData){
+            root = insertHelper(root, bookData);
         }
 
         //Returns book node by ID
@@ -135,12 +141,12 @@ class BookList{
 
         //ADMIN 
         //this needs to update total copies
-        void add(string inputID, string inputTitle, string inputAuthorName, string isbn, int total_copies, int available_copies){
+        void add(BookData inputBookData){
             //get total copies then + 1, use searchByIDHelper
             //Adding also incrementally increases bookID by 1, however it is a string so there 
             //needs to be regex str -> int -> str again
-            insert(inputID, inputTitle, inputAuthorName, isbn, total_copies, available_copies, true);
-            cout << "Book ID " << inputID << " has been added successfully." << endl;
+            insert(inputBookData);
+            cout << "Book ID " << inputBookData.bookID << " has been added successfully." << endl;
         }
 
         //Edit book by ID

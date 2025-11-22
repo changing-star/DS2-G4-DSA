@@ -10,6 +10,7 @@
 #include <list>
 #include <tuple>
 #include <cstring>
+#include <bits/stdc++.h>
 
 using namespace std;
 // detect OS
