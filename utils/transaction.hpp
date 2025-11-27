@@ -154,9 +154,11 @@ class TransactionList{
         }
 
         string line;
+        string field;
         string transactionDataType;
         TransactionData transactionData;
-        
+        int index;
+
         while(getline(file, line)){
             if(firstLine){
                 firstLine = false;
@@ -165,16 +167,24 @@ class TransactionList{
 
             stringstream ss(line);
             
-            getline(ss, transactionData.transactionID, ',');
-            getline(ss, transactionData.userID, ',');
-            getline(ss, transactionData.itemID, ',');
-            getline(ss, transactionDataType, ',');
-            getline(ss, transactionData.transactionTime, ',');
-            getline(ss, transactionData.relatedTransaction, ',');
-
-            transactionData.type = stringToTransactionType(transactionDataType);
+            try{
+                index = stoi(field);
+            } catch(const exception& e){
+                cerr << "Error converting index: " << e.what() << endl;
+                continue;
+            }
+            
+            if(getline(ss, transactionData.transactionID, ',')&&
+            getline(ss, transactionData.userID, ',')&&
+            getline(ss, transactionData.itemID, ',')&&
+            getline(ss, transactionDataType, ',')&&
+            getline(ss, transactionData.transactionTime, ',')&&
+            getline(ss, transactionData.relatedTransaction, ',')){
+                transactionData.type = stringToTransactionType(transactionDataType);
+                push(transactionData);
+            }
         }
-        
+        file.close();
     }
     
 };

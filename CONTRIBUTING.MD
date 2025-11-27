@@ -17,3 +17,12 @@ i have no idea how to stress this enough, but your commit messages need to be me
 thank you!
 
 https://www.conventionalcommits.org/en/v1.0.0/
+
+
+
+
+
+
+
+
+you know what i give up on you guys lol
