@@ -15,8 +15,6 @@ class AdminNode{
         AdminNode* prev;
         AdminNode* next;
 
-        
-
         AdminNode(AdminData adminData){
             this->adminData.adminID = adminData.adminID;
             this->adminData.adminUsername = adminData.adminUsername;
@@ -97,7 +95,7 @@ class AdminList{
 
             AdminNode* curr = head;
 
-            file << "index,admin_id,admin_username,admin_password" << 'endl';
+            file << "index,admin_id,admin_username,admin_password" << endl;
 
             int index = 1;
             while(curr != nullptr){
@@ -121,6 +119,7 @@ class AdminList{
                 cout << "Error opening file " << filename << endl;
                 return;
             }
+            
 
             string line;
 
