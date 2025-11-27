@@ -3,8 +3,8 @@ Repository for final project of Data Structure and Algorithm (C++) class.
 
 ## Data Structures Used
 - Admin List, Doubly Linked List
-- Book List, Binary Search Tree
-.
+- Book Binary, Binary Search Tree
+- Transaction Stack, Stack for history
 .
 .
 # Development
@@ -13,7 +13,7 @@ Repository for final project of Data Structure and Algorithm (C++) class.
 ## Compiling
 ```bash
 #Linux
-g++ -I./utils main.cpp -o myprogram -lssl -lcrypto
+g++ -I./utils main.cpp -o library_manager -lssl -lcrypto
 #Windows
 g++ -I./include -I./utils src/main.cpp -o library_manager.exe
 #MacOS

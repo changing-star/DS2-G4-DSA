@@ -11,8 +11,8 @@ BookList bookList;
 TransactionList transactionList;
 
 using namespace std;
-void UserMode();
-void AdminMode();
+void UserView();
+void AdminView();
 
 
 int main(){
@@ -20,16 +20,54 @@ int main(){
     string inputPassword;
 
     adminList.loadAdminFromFile("database/admin.csv");
+    bookList.loadBooksFromFile("database/books.csv");
+    transactionList.loadTransactionFromFile("database/transactions.csv");
 
-    cout << adminList.getSize() << endl;
+    while(true){
+        clearScreen();
+        cout << "----- Login Screen -----" << endl;
+        cout << "Input ID: ";
+        cin >> inputID;
+        cout << "Input Password: ";
+        cin >> inputPassword;
+
+        for(size_t i = 0; i < inputID.length(); i++){
+            inputID[i] = toupper(inputID[i]); // Normalize
+        }
+
+        if(inputID.substr(0,5) == "USER-"){
+            if(true){
+                cout << "User login success" << endl;
+                UserView();
+                break;
+            } else {
+                cout << "User login failed" << endl;
+            }
+        } else if(inputID.substr(0,3) == "AD-"){
+            if(adminList.searchAndCompare(inputID, inputPassword)){
+                cout << "Admin login success" << endl;
+                AdminView();
+                break;
+            } else {
+                cout << "Admin login failed" << endl;
+            }
+        } else {
+            cout << "INVALID ID! Please try again" << endl;
+        }
+
+        cout << "Press Enter to continue..." << endl;
+        cin.ignore();
+        cin.get();
+
+    }
 
     return 0;
 }
 
-void UserMode(){
+void UserView(){
 
 };
 
-void AdminMode(){
+void AdminView(){
     
 };

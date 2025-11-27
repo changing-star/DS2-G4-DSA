@@ -1,4 +1,4 @@
-index,book_id,title,author,isbn,total_copies,available_copies, availability
-1,BID-01,How to train your dragon,John,12-2002,2,2, true
-2,BID-02,Algorithm,Quant,10-1999,2,2, true
+index,book_id,title,author,isbn,total_copies,available_copies,availability
+1,BID-01,How to train your dragon,John,12-2002,2,2,true
+2,BID-02,Algorithm,Quant,10-1999,2,2,true
 

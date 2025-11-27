@@ -144,9 +144,36 @@ class BookList{
         BookNode* searchByID(string id){
             searchByIDHelper(root, id);
         }
+        
+        //Save BST of books into db file
+        void saveBooksToFile(string filename){
+            ofstream file(filename);
+            if(!file.is_open()){
+                cout << "Error opening file " << filename << endl;
+                return;
+            }
 
+            vector<BookData> bookDataVector = inOrderHelper(root);
+            file << "index,book_id,title,author,isbn,total_copies,available_copies,availabilty" << 'endl'; 
+
+            int index = 1;
+            for(const BookData& itr : bookDataVector){
+                file << index << ','
+                    << itr.bookID << ','
+                    << itr.bookTitle << ','
+                    << itr.bookAuthor << ','
+                    << itr.isbn << ','
+                    << itr.totalCopies << ','
+                    << itr.availableCopies << ','
+                    << itr.availability << endl ;
+                index++;
+            }
+            
+            file.close();
+            cout << "Book data successfully saved to " << filename << endl;
+        }
         //Load books from db and insert into BST
-        void loadBooksFromDB(string filename){
+        void loadBooksFromFile(string filename){
             bool firstLine = true;
 
             ifstream file(filename);
@@ -196,34 +223,6 @@ class BookList{
             }
 
             file.close();
-
-        }
-
-        //Save BST of books into db file
-        void saveBooksToDB(string filename){
-            ofstream file(filename);
-            if(!file.is_open()){
-                cout << "Error opening file " << filename << endl;
-                return;
-            }
-
-            vector<BookData> bookDataVector = inOrderHelper(root);
-            int index = 1;
-            for(const BookData& itr : bookDataVector){
-                file << index << ','
-                    << itr.bookID << ','
-                    << itr.bookTitle << ','
-                    << itr.bookAuthor << ','
-                    << itr.isbn << ','
-                    << itr.totalCopies << ','
-                    << itr.availableCopies << ','
-                    << itr.availability << 'endl';
-                index ++;
-            }
-            
-            file.close();
-            cout << "Book data successfully saved to " << filename << endl;
-
 
         }
 

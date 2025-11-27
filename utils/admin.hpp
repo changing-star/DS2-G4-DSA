@@ -4,7 +4,7 @@
 #include "hash.hpp"
 
 struct AdminData{
-    string adminId;
+    string adminID;
     string adminUsername;
     string adminPassword;
 };
@@ -15,8 +15,10 @@ class AdminNode{
         AdminNode* prev;
         AdminNode* next;
 
+        
+
         AdminNode(AdminData adminData){
-            this->adminData.adminId = adminData.adminId;
+            this->adminData.adminID = adminData.adminID;
             this->adminData.adminUsername = adminData.adminUsername;
             this->adminData.adminPassword = md5Hash(adminData.adminPassword);
             prev = next = nullptr;
@@ -42,7 +44,16 @@ class AdminList{
 
         //Insert Front
         void insertFront(AdminData adminData){
+            AdminNode* newNode = new AdminNode(adminData);
 
+            if(head == nullptr){
+                head = tail = newNode;
+            } else {
+                tail->next = newNode;
+                newNode->prev = tail;
+                tail = newNode;
+            }
+            size++;
         }
 
         //Insert Back
@@ -72,12 +83,12 @@ class AdminList{
         }
 
         //Remove by ID
-        void removeByID(string adminId){
+        void removeByID(string adminID){
 
         }
 
         //Save Admins to file
-        void saveAdmin(string filename){
+        void saveAdminToFile(string filename){
             ofstream file(filename);
             if(!file.is_open()){
                 cout << "Error opening file " << filename << endl;
@@ -85,12 +96,15 @@ class AdminList{
             }
 
             AdminNode* curr = head;
+
+            file << "index,admin_id,admin_username,admin_password" << 'endl';
+
             int index = 1;
             while(curr != nullptr){
                 file << index << ','
-                    << curr->adminData.adminId << ','
+                    << curr->adminData.adminID << ','
                     << curr->adminData.adminUsername << ','
-                    << curr->adminData.adminPassword << 'endl';
+                    << curr->adminData.adminPassword << endl ;
                 curr = curr->next;
                 index++;
             }
@@ -129,18 +143,11 @@ class AdminList{
                     continue;
                 }
 
-                if(getline(iss, adminData.adminId, ',') &&
+                if(getline(iss, adminData.adminID, ',') &&
                     getline(iss, adminData.adminUsername, ',') &&
                     getline(iss, adminData.adminPassword, ',')){
                         AdminNode* newNode = new AdminNode(adminData);
-                        if(head == nullptr){
-                            head = tail = newNode;
-                        } else {
-                            tail->next = newNode;
-                            newNode->prev = tail;
-                            tail = newNode;
-                        }
-                        size++;
+                        insertFront(adminData);
                     }
             }
             file.close();
@@ -150,7 +157,7 @@ class AdminList{
         bool searchAndCompare(string inputId, string inputPassword){
             AdminNode* curr = head;
             while(curr != nullptr){
-                if(curr->adminData.adminId == inputId && curr->adminData.adminPassword == md5Hash(inputPassword)){
+                if(curr->adminData.adminID == inputId && curr->adminData.adminPassword == md5Hash(inputPassword)){
                     return true;
                 }
                 curr = curr->next;
