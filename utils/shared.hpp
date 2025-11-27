@@ -13,6 +13,14 @@
 #include <bits/stdc++.h>
 
 using namespace std;
+
+bool solve(string ip) {
+   bool op;
+   istringstream(ip) >> boolalpha >> op;
+   return op;
+}
+
+
 // detect OS
 #ifdef _WIN32
     //WIN32

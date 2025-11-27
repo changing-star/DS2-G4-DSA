@@ -125,7 +125,7 @@ class AdminList{
                 try{
                     index = stoi(field);
                 } catch(const exception& e){
-                    std::cerr << "Error converting index: " << e.what() << std::endl;
+                    cerr << "Error converting index: " << e.what() << endl;
                     continue;
                 }
 

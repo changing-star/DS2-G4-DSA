@@ -2,9 +2,6 @@
 #define book_hpp
 #include "shared.hpp"
 
-//Maybe implemnet a binary search tree here so we can store it alphabetically automatically
-//Also probably change the booknode data into a struct because this is fucking ugly as shit
-
 struct BookData{
     string bookID;
     string bookTitle;
@@ -59,6 +56,7 @@ class BookList{
                 node->bookData.availableCopies = bookData.availableCopies;
                 node->bookData.availability = bookData.availability;
             }
+            size++;
 
             return node;
         }
@@ -74,6 +72,39 @@ class BookList{
                 return searchByIDHelper(node->left, id);
             }
         }
+
+        vector<BookData> preOrderHelper(BookNode *node){
+            vector<BookData> bookDataVector;
+            if(node != nullptr){
+                bookDataVector.push_back(node->bookData);
+                preOrderHelper(node->left);
+                preOrderHelper(node->right);
+            }
+            return bookDataVector;
+        }
+
+        vector<BookData> inOrderHelper(BookNode *node){
+            vector<BookData> bookDataVector;
+            if(node != nullptr){
+                inOrderHelper(node->left);
+                bookDataVector.push_back(node->bookData);
+                inOrderHelper(node->right);
+            }
+            return bookDataVector;
+        }
+
+        vector<BookData> postOrderHelper(BookNode *node){
+            vector<BookData> bookDataVector;
+            if(node != nullptr){
+                inOrderHelper(node->left);
+                inOrderHelper(node->right);
+                bookDataVector.push_back(node->bookData);
+            }
+            return bookDataVector;
+        }
+
+
+
     public:
         BookList(BookData bookData){
             root = new BookNode(bookData);
@@ -91,6 +122,8 @@ class BookList{
         BookNode* getRoot(){
             return root;
         }
+
+
 
         //Show book information
         void showBookInfo(string id){
@@ -114,11 +147,83 @@ class BookList{
 
         //Load books from db and insert into BST
         void loadBooksFromDB(string filename){
+            bool firstLine = true;
+
+            ifstream file(filename);
+            if(!file.is_open()){
+                cout << "Error opening file " << filename << endl;
+                return;
+            }
+            
+            string line;
+            while(getline(file, line)){
+                if(firstLine){
+                    firstLine = false;
+                    continue;
+                }
+
+                istringstream iss(line);
+                int index;
+                string field;
+
+                BookData bookData;
+
+                getline(iss, field, ',');
+                try{
+                    index = stoi(field);
+                } catch(const exception& e){
+                    cerr << "Error converting index: " << e.what() << endl;
+                    continue;
+                }
+
+                string totalCopiesField;
+                string availableCopiesField;
+                string availabilityField;
+                
+                if(getline(iss, bookData.bookID, ',') &&
+                    getline(iss, bookData.bookTitle, ',') &&
+                    getline(iss, bookData.bookAuthor, ',') &&
+                    getline(iss, bookData.isbn, ',') &&
+                    getline(iss, totalCopiesField, ',') &&
+                    getline(iss, availableCopiesField, ',') &&     
+                    getline(iss, availabilityField, ',')){
+                        bookData.totalCopies = stoi(totalCopiesField);
+                        bookData.availableCopies = stoi(availableCopiesField);
+                        bookData.availability = solve(availabilityField);
+
+                        insert(bookData);
+                }
+            }
+
+            file.close();
 
         }
 
         //Save BST of books into db file
         void saveBooksToDB(string filename){
+            ofstream file(filename);
+            if(!file.is_open()){
+                cout << "Error opening file " << filename << endl;
+                return;
+            }
+
+            vector<BookData> bookDataVector = inOrderHelper(root);
+            int index = 1;
+            for(const BookData& itr : bookDataVector){
+                file << index << ','
+                    << itr.bookID << ','
+                    << itr.bookTitle << ','
+                    << itr.bookAuthor << ','
+                    << itr.isbn << ','
+                    << itr.totalCopies << ','
+                    << itr.availableCopies << ','
+                    << itr.availability << 'endl';
+                index ++;
+            }
+            
+            file.close();
+            cout << "Book data successfully saved to " << filename << endl;
+
 
         }
 
