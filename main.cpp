@@ -20,6 +20,7 @@ int main(){
     string inputPassword;
 
     adminList.loadAdminFromFile("database/admin.csv");
+    userList.loadUserFromFile("database/user.csv");
     bookList.loadBooksFromFile("database/books.csv");
     transactionList.loadTransactionFromFile("database/transactions.csv");
 
@@ -36,7 +37,7 @@ int main(){
         }
 
         if(inputID.substr(0,5) == "USER-"){
-            if(true){
+            if(userList.searchAndCompare(inputID, inputPassword)){
                 cout << "User login success" << endl;
                 UserView();
                 break;
@@ -65,6 +66,34 @@ int main(){
 }
 
 void UserView(){
+    int choice;
+    while(1){
+        clearScreen();
+        cout << "----- USER VIEW -----";
+        cout << "1. View all Books" << endl;
+        cout << "2. Search book by title" << endl;
+        cout << "3. Search book by author" << endl;
+        cout << "4. Search book by ID" << endl;
+        cout << "0. Exit" << endl;
+
+        cout << "Enter Option: ";
+        cin >> choice;
+
+        switch(choice){
+            case 1: { //View All Books
+
+                break;
+            }
+            case 2: { //Search book by title
+                string searchInput;
+                cout << "Enter a title: ";
+                cin.ignore();
+                getline(cin, searchInput);
+                
+                break;
+            }
+        }
+    }
 
 };
 

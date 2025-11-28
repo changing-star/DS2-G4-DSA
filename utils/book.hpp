@@ -62,7 +62,7 @@ class BookList{
         }
 
         BookNode *searchByIDHelper(BookNode *node, string id){
-            if(node == NULL){
+            if(node == nullptr){
                 return nullptr;
             } else if (id == node->bookData.bookID){
                 return node;
@@ -71,6 +71,25 @@ class BookList{
             } else if (id < node->bookData.bookID){
                 return searchByIDHelper(node->left, id);
             }
+        }
+
+        vector<BookData> searchByAuthorHelper(BookNode *node, string inputAuthor){
+            vector<BookData> bookDataVector;
+            if(node != nullptr){
+                searchByAuthorHelper(node->left, inputAuthor);
+                if(inputAuthor == node->bookData.bookAuthor){
+                    bookDataVector.push_back(node->bookData);
+                }
+                searchByAuthorHelper(node->right, inputAuthor);
+            }
+            return bookDataVector;
+        }
+
+        vector<BookData> searchByTitleHelper(BookNode *node, string inputTitle){
+            vector<BookData> bookDataVector;
+            //Implement
+
+            return bookDataVector;
         }
 
         vector<BookData> preOrderHelper(BookNode *node){
@@ -268,6 +287,38 @@ class BookList{
 
         //Search by author, create a new searchByAuthorHyper
         void searchByAuthor(string inputAuthorName){
+            int itemPerPage = 5;
+            int totalPage;
+            int totalItem;
+            int currentPage;
+            vector<BookData> bookDataVector = searchByAuthorHelper(root, inputAuthorName);
+
+            vector<BookData>::iterator vector_itr;
+
+            totalItem = bookDataVector.size();
+            totalPage = (int)(totalItem/itemPerPage) + 1;
+            currentPage = 1;
+            string navKey;
+
+            int lower = 0;
+            while(1){
+                clearScreen();
+                lower = ((currentPage-1)) * itemPerPage;
+                cout << "----- Search by Author -----" << endl;
+                cout << "Page " << currentPage << " of " << totalPage << endl;
+                cout << "Search input: " << inputAuthorName << endl;
+                cout << "Total Entries: " << bookDataVector.size() << endl;
+                cout << endl;
+
+                cout << setw(25) << left << "     Title" 
+                    << setw(20) << left << "     Author" 
+                    << setw(20) << left << "     Publish date" 
+                    << setw(11) << left << "     avaialable" 
+                    << endl;
+                
+                vector_itr = bookDataVector.begin();
+                
+            }
 
         }
 };
