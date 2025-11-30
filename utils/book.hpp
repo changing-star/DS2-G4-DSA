@@ -73,6 +73,39 @@ class BookList{
             }
         }
 
+        BookNode *getSuccessor(BookNode* curr){
+            curr = curr->right;
+            while(curr != nullptr && curr->left != nullptr){
+                curr = curr->left;
+            }
+            return curr;
+        }
+
+        BookNode *removeByIDHelper(BookNode *node, string id){
+            if(node == nullptr){
+                return nullptr;
+            } else if (node->bookData.bookID > id){
+                node->left = removeByIDHelper(node->left, id);
+            } else if (node->bookData.bookID < id){
+                node->right = removeByIDHelper(node->right, id);
+            } else {
+                if(node->left == nullptr){
+                    BookNode* temp = node->right;
+                    delete node;
+                    return temp;
+                }
+                if (node->right == nullptr){
+                    BookNode* temp = node->left;
+                    delete node;
+                    return temp;
+                }
+            }
+            BookNode* succ = getSuccessor(node);
+            node->bookData = succ->bookData;
+            node->right = removeByIDHelper(root->right, succ->bookData.bookID);
+            
+        }
+
         vector<BookData> searchByAuthorHelper(BookNode *node, string inputAuthor){
             vector<BookData> bookDataVector;
             if(node != nullptr){
@@ -142,15 +175,8 @@ class BookList{
             return root;
         }
 
-
-
         //Show book information
         void showBookInfo(string id){
-
-        }
-
-        //Remove entry by ID and reorder BST
-        void removeByID(string id){
 
         }
 
@@ -163,6 +189,13 @@ class BookList{
         BookNode* searchByID(string id){
             searchByIDHelper(root, id);
         }
+
+
+        //Remove entry by ID and reorder BST
+        BookNode* removeByID(string id){
+            removeByIDHelper(root, id);
+        }
+
         
         //Save BST of books into db file
         void saveBooksToFile(string filename){
@@ -274,10 +307,7 @@ class BookList{
 
         //Edit book by ID
         void edit(string inputID){
-        }
 
-        //Remove book by ID
-        void remove(string inputID){
         }
 
         //Search by title, create a new searchByTitleHelper
