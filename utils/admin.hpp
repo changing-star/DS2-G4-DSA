@@ -68,6 +68,30 @@ class AdminList{
         //Display List of Admins
         void displayAdmin(){
             //testing
+            if(head == nulltpr){
+                cout<< "No admins avalilable.\n";
+                return;
+            }
+            AdminNode* curr = head;
+            int index = 1;
+
+            cout << left << setw(6) <<"No."
+                 << setw(15) << "Admin ID"
+                 << setw(20) << "Username"
+                 << setw(40) << "Password (hashed)" << endl;
+
+            cout<< string(80, '-') << endl;
+
+            while(curr != nullptr){
+                cout << left << setw(6) << index
+                     << setw(15) << curr -> adminData.adminID
+                     << setw(20) << curr -> adminData.adminUsername
+                     << setw(40) << curr -> adminData.adminPassword
+                     << endl;
+
+                curr = curr -> next;
+                index++;
+            }
 
         }
 
