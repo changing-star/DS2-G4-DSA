@@ -292,7 +292,8 @@ class BookList{
         //a variable of a book node to calculate as available copies > 0
         //return or borrow 
         bool updateBorrow(){
-
+            //this is my code
+            cout << "Enter Book ID to borrow: ";
         }
 
         //ADMIN 
