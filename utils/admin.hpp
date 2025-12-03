@@ -81,9 +81,43 @@ class AdminList{
         }
 
         //Remove by ID
-        void removeByID(string adminID){
+        void removeByID(string adminID) {
+    if (head == nullptr) {
+        cout << "Admin list is empty.\n";
+        return;
+    }
 
-        }
+    AdminNode* curr = head;
+    while (curr != nullptr && curr->adminData.adminID != adminID) {
+        curr = curr->next;
+    }
+
+    if (curr == nullptr) {
+        cout << "Admin ID " << adminID << " not found.\n";
+        return;
+    }
+    if (curr == head) {
+        head = head->next;
+        if (head != nullptr)
+            head->prev = nullptr;
+        else
+            tail = nullptr; 
+    }
+    else if (curr == tail) {
+        tail = tail->prev;
+        if (tail != nullptr)
+            tail->next = nullptr;
+    }
+    else {
+        curr->prev->next = curr->next;
+        curr->next->prev = curr->prev;
+    }
+
+    delete curr;
+    size--;
+
+    cout << "Admin ID " << adminID << " removed successfully.\n";
+}
 
         //Save Admins to file
         void saveAdminToFile(string filename){
