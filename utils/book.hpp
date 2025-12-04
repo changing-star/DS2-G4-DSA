@@ -292,7 +292,25 @@ class BookList{
         //a variable of a book node to calculate as available copies > 0
         //return or borrow 
         bool updateBorrow(){
-
+            //this is my code
+          string id;
+          cout<<""Enter Book ID to borrow: ";
+          cin>>id;
+          BookNode* node = searchByIDHelper(root, id);
+          if(!node){
+              cout<<"Book ID not found!"<<endl;
+              return false;
+          }
+              if(node->bookData.availableCopies <=0){
+                  cout<<"No available copies to borrow!"<<endl;
+                  node->bookData.availability = false;
+                  return false;
+              }
+                node->bookData.availableCopies--;
+                node->bookData.availability = (node->bookData.availableCopies > 0);
+                cout << "Borrow successful. Remaining copies: " 
+               << node->bookData.availableCopies << endl;
+                return true;
         }
 
         //ADMIN 
@@ -306,12 +324,52 @@ class BookList{
         }
 
         //Edit book by ID
-        void edit(string inputID){
+    void edit(string inputID) {
+    BookNode* node = searchByIDHelper(root, inputID);
 
-        }
+    if (!node) {
+        cout << "Book ID not found.\n";
+        return;
+    }
 
-        //Search by title, create a new searchByTitleHelper
-        void searchByTitle(string inputTitle){
+    cout << "Editing Book ID: " << inputID << endl;
+
+    string newTitle, newAuthor, newISBN;
+    int newTotal, newAvailable;
+
+    cout << "Enter new Title (" << node->bookData.bookTitle << "): ";
+    cin.ignore();
+    getline(cin, newTitle);
+
+    cout << "Enter new Author (" << node->bookData.bookAuthor << "): ";
+    getline(cin, newAuthor);
+
+    cout << "Enter new ISBN (" << node->bookData.isbn << "): ";
+    getline(cin, newISBN);
+
+    cout << "Enter Total Copies (" << node->bookData.totalCopies << "): ";
+    cin >> newTotal;
+
+    cout << "Enter Available Copies (" << node->bookData.availableCopies << "): ";
+    cin >> newAvailable;
+
+    if (newAvailable > newTotal) {
+        cout << "Available cannot exceed total. Edit canceled.\n";
+        return;
+    }
+    node->bookData.bookTitle = newTitle;
+    node->bookData.bookAuthor = newAuthor;
+    node->bookData.isbn = newISBN;
+    node->bookData.totalCopies = newTotal;
+    node->bookData.availableCopies = newAvailable;
+    node->bookData.availability = (newAvailable > 0);
+
+    cout << "Book updated successfully.\n";
+}
+
+
+//Search by title, create a new searchByTitleHelper
+void searchByTitle(string inputTitle){
 
         }
 
