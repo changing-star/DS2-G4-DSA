@@ -280,7 +280,32 @@ class BookList{
 
         //Prints the entire book list
         void print(){
-
+            vector<BookData> bookDataVector = inOrderHelper(root);
+            if(bookDataVector.empty()) {
+                cout << "No books available in the library." << endl;
+                return;
+            }
+            cout<< setw(5) << left << "No:" 
+                << setw(15) << left << "Book ID" 
+                << setw(30) << left << "Title" 
+                << setw(25) << left << "Author" 
+                << setw(15) << left << "ISBN" 
+                << setw(10) << left << "Total" 
+                << setw(10) << left << "Available" 
+                << setw(10) << left << "Status" << endl;
+            int index = 1;
+            for(const auto& book : bookDataVector) {
+                cout << setw(5) << left << index
+                    << setw(15) << left << book.bookID
+                    << setw(30) << left << book.bookTitle
+                    << setw(25) << left << book.bookAuthor
+                    << setw(15) << left << book.isbn
+                    << setw(10) << left << book.totalCopies
+                    << setw(10) << left << book.availableCopies
+                    << setw(10) << left << (book.availability ? "Yes" : "No") 
+                    << endl;
+                    index++;
+            }
         }
 
         //Display and change tui i guess, ill do this one
