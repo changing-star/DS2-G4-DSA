@@ -294,7 +294,7 @@ class BookList{
                 << setw(10) << left << "Available" 
                 << setw(10) << left << "Status" << endl;
             int index = 1;
-            for(const auto& book : bookDataVector) {
+            for(const BookData& book : bookDataVector) {
                 cout << setw(5) << left << index
                     << setw(15) << left << book.bookID
                     << setw(30) << left << book.bookTitle
