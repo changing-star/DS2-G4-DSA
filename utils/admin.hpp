@@ -95,9 +95,27 @@ class AdminList{
 
         }
 
-        //Remove Front
-        void removeFront(){
+         //Remove Front
+         void removeFront(){
+            if (head == nullptr) {
+                cout << "List is empty. Nothing to remove!" << endl;
+                return;
+            }
 
+            // If only ONE node
+            if (head == tail) {
+                delete head;
+                head = tail = nullptr;
+            }
+            else {
+                AdminNode* temp = head;
+                head = head->next;   // move head forward
+                head->prev = nullptr; 
+                delete temp;
+            }
+
+            size--;
+            cout << "First admin removed successfully!" << endl;\
         }
 
         //Remove Back
