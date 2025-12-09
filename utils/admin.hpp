@@ -102,7 +102,22 @@ class AdminList{
 
         //Remove Back
         void removeBack(){
+            if(tail == nullptr){
+                return; // list empty
+            }
 
+            AdminNode* toDelete = tail;
+
+            if(head == tail){
+                // single element
+                head = tail = nullptr;
+            } else {
+                tail = tail->prev;
+                if(tail) tail->next = nullptr;
+            }
+
+            delete toDelete;
+            if(size > 0) size--;
         }
 
         //Remove by ID
