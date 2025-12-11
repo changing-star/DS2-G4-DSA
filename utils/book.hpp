@@ -407,8 +407,8 @@ class BookList{
     node->bookData.availability = (newAvailable > 0);
 
     cout << "Book updated successfully.\n";
+    
 }
-
 
 //Search by title, create a new searchByTitleHelper
 void searchByTitle(string inputTitle){
