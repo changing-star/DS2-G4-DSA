@@ -121,6 +121,11 @@ class TransactionList{
         return transactionData;
     }
 
+    void addTransaction(TransactionData transactionData){
+        push(transactionData);
+        cout << transactionData.userID << " "<< transactionData.type << " " << transactionData.itemID << id << endl;
+    }
+
     void saveTransactionToFile(string filename){
         ofstream file(filename);
         if(!file.is_open()){
@@ -185,6 +190,17 @@ class TransactionList{
             }
         }
         file.close();
+    }
+
+    bool searchAndCompare(string transactionID){
+        TransactionNode* curr = top;
+        while(curr != nullptr){
+            if(curr->transactionData.transactionID == transactionID){
+                return true;
+            }
+            pop();
+        }
+        return false;
     }
     
 };

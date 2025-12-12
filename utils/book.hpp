@@ -37,11 +37,7 @@ class BookList{
         int size;
 
         BookNode *insertHelper(BookNode* node, BookData bookData){
-            if (node==nullptr){
-                size++;
-                return new BookNode(bookData);
-            }
-            
+        
             //String comparison
             if (bookData.bookTitle < node->bookData.bookTitle){
                 node->left = insertHelper(node->left, bookData);
@@ -106,31 +102,14 @@ class BookList{
             
         }
 
-        vector<BookData> searchByAuthorHelper(BookNode *node, string inputAuthor){
-            vector<BookData> bookDataVector;
-            if(node != nullptr){
-                searchByAuthorHelper(node->left, inputAuthor);
-                if(inputAuthor == node->bookData.bookAuthor){
-                    bookDataVector.push_back(node->bookData);
-                }
-                searchByAuthorHelper(node->right, inputAuthor);
-            }
-            return bookDataVector;
-        }
-
-        vector<BookData> searchByTitleHelper(BookNode *node, string inputTitle){
-            vector<BookData> bookDataVector;
-            //Implement
-
-            return bookDataVector;
-        }
-
         vector<BookData> preOrderHelper(BookNode *node){
             vector<BookData> bookDataVector;
             if(node != nullptr){
                 bookDataVector.push_back(node->bookData);
-                preOrderHelper(node->left);
-                preOrderHelper(node->right);
+                vector<BookData> left = preOrderHelper(node->left);
+                bookDataVector.insert(bookDataVector.end(), left.begin(), left.end());
+                vector<BookData> right = preOrderHelper(node->right);
+                bookDataVector.insert(bookDataVector.end(), right.begin(), right.end());
             }
             return bookDataVector;
         }
@@ -138,9 +117,11 @@ class BookList{
         vector<BookData> inOrderHelper(BookNode *node){
             vector<BookData> bookDataVector;
             if(node != nullptr){
-                inOrderHelper(node->left);
+                vector<BookData> left = inOrderHelper(node->left);
+                bookDataVector.insert(bookDataVector.end(), left.begin(), left.end());
                 bookDataVector.push_back(node->bookData);
-                inOrderHelper(node->right);
+                vector<BookData> right = inOrderHelper(node->right);
+                bookDataVector.insert(bookDataVector.end(), right.begin(), right.end());
             }
             return bookDataVector;
         }
@@ -148,8 +129,10 @@ class BookList{
         vector<BookData> postOrderHelper(BookNode *node){
             vector<BookData> bookDataVector;
             if(node != nullptr){
-                inOrderHelper(node->left);
-                inOrderHelper(node->right);
+                vector<BookData> left = postOrderHelper(node->left);
+                bookDataVector.insert(bookDataVector.end(), left.begin(), left.end());
+                vector<BookData> right = postOrderHelper(node->right);
+                bookDataVector.insert(bookDataVector.end(), right.begin(), right.end());
                 bookDataVector.push_back(node->bookData);
             }
             return bookDataVector;
@@ -173,6 +156,17 @@ class BookList{
 
         BookNode* getRoot(){
             return root;
+        }
+
+        
+        vector<BookData> inOrder(){
+            return inOrderHelper(root);
+        }
+        vector<BookData> preOrder(){
+            return preOrderHelper(root);
+        }
+        vector<BookData> postOrder(){
+            return postOrderHelper(root);
         }
 
         //Show book information
@@ -281,6 +275,10 @@ class BookList{
         //Prints the entire book list
         void print(){
             vector<BookData> bookDataVector = inOrderHelper(root);
+            print(bookDataVector);
+        }
+        //Prints any vector of books
+        void print(const vector<BookData>& bookDataVector){
             if(bookDataVector.empty()) {
                 cout << "No books available in the library." << endl;
                 return;
@@ -310,32 +308,93 @@ class BookList{
 
         //Display and change tui i guess, ill do this one
         void transformList(){
-
+            vector<BookData> bookDataVector = inOrder();
+            if (bookDataVector.empty()) {
+                clearScreen();
+                cout << "No books available in the library." << endl;
+                cout << "Press any key to return..." << endl;
+                cin.ignore();
+                cin.get();
+                return;
+            }
+            int itemPerPage = 10;
+            cout << "Enter number of items per page (default 10): ";
+            string input;
+            getline(cin, input);
+            if (!input.empty()) {
+                try {
+                    int val = stoi(input);
+                    if (val > 0) itemPerPage = val;
+                    else cout << "Invalid input, using default 10." << endl;
+                } catch (...) {
+                    cout << "Invalid input, using default 10." << endl;
+                }
+            }
+            int totalItem = bookDataVector.size();
+            int totalPage = (totalItem + itemPerPage - 1) / itemPerPage;
+            int currentPage = 1;
+            string navKey;
+            while (true) {
+                clearScreen();
+                cout << "===== View all book =====" << endl;
+                cout << "Page " << currentPage << " of " << totalPage << endl;
+                cout << "Total books: " << totalItem << endl;
+                int availableCount = 0, borrowedCount = 0;
+                for (const auto& book : bookDataVector) {
+                    if (book.availableCopies > 0) availableCount++;
+                    else borrowedCount++;
+                }
+                cout << "Available books: " << availableCount << endl;
+                cout << "Borrowed books: " << borrowedCount << endl;
+                cout << endl;
+                int start = (currentPage - 1) * itemPerPage;
+                int end = min(start + itemPerPage, totalItem);
+                vector<BookData> pageBooks(bookDataVector.begin() + start, bookDataVector.begin() + end);
+                print(pageBooks);
+                cout << endl;
+                cout << "*********************************************************" << endl;
+                cout << "Navigation: previous page '<-', next page '->', exit 'q'" << endl;
+                navKey = readNav();
+                if (navKey == "left" && currentPage > 1) currentPage--;
+                else if (navKey == "right" && currentPage < totalPage) currentPage++;
+                else if (navKey == "exit") break;
+            }
         }
 
         //Minus from available_copies, also should proabably store "available" as either 
         //a variable of a book node to calculate as available copies > 0
         //return or borrow 
-        bool updateBorrow(){
-            //this is my code
-          string id;
-          cout<<""Enter Book ID to borrow: ";
-          cin>>id;
-          BookNode* node = searchByIDHelper(root, id);
-          if(!node){
-              cout<<"Book ID not found!"<<endl;
-              return false;
-          }
-              if(node->bookData.availableCopies <=0){
-                  cout<<"No available copies to borrow!"<<endl;
-                  node->bookData.availability = false;
-                  return false;
-              }
-                node->bookData.availableCopies--;
-                node->bookData.availability = (node->bookData.availableCopies > 0);
-                cout << "Borrow successful. Remaining copies: " 
-               << node->bookData.availableCopies << endl;
-                return true;
+        bool updateBorrow(string inputItemID){
+            string id;
+            id = inputItemID;
+            BookNode* node = searchByIDHelper(root, id);
+            if(!node){
+                cout<<"Book ID not found!"<<endl;
+                return false;
+            }
+            if(node->bookData.availableCopies <= 0){
+                cout<<"No available copies to borrow!"<<endl;
+                node->bookData.availability = false;
+                return false;
+            }
+            node->bookData.availableCopies--;
+            node->bookData.availability = (node->bookData.availableCopies > 0);
+            cout << "Borrow successful. Remaining copies: " << node->bookData.availableCopies << endl;
+            return true;
+        }
+
+        bool updateReturn(string inputItemID){
+            string id;
+            id = inputItemID;
+            BookNode* node = searchByIDHelper(root,id);
+            if(!node){
+                cout << "Book ID not found!" << endl;
+                return false;
+            }
+            node->bookData.availability = true;
+            node->bookData.availableCopies++;
+            cout << "Return successful. Total copies: " << node->bookData.availableCopies << endl;
+            return true;
         }
 
         //ADMIN 
@@ -349,90 +408,165 @@ class BookList{
         }
 
         //Edit book by ID
-    void edit(string inputID) {
-    BookNode* node = searchByIDHelper(root, inputID);
+        void edit(string inputID) {
+            BookNode* node = searchByIDHelper(root, inputID);
 
-    if (!node) {
-        cout << "Book ID not found.\n";
-        return;
-    }
+            if (!node) {
+                cout << "Book ID not found.\n";
+                return;
+            }
 
-    cout << "Editing Book ID: " << inputID << endl;
+            cout << "Editing Book ID: " << inputID << endl;
 
-    string newTitle, newAuthor, newISBN;
-    int newTotal, newAvailable;
+            string newTitle, newAuthor, newISBN;
+            int newTotal, newAvailable;
 
-    cout << "Enter new Title (" << node->bookData.bookTitle << "): ";
-    cin.ignore();
-    getline(cin, newTitle);
+            cout << "Enter new Title (" << node->bookData.bookTitle << "): ";
+            cin.ignore();
+            getline(cin, newTitle);
 
-    cout << "Enter new Author (" << node->bookData.bookAuthor << "): ";
-    getline(cin, newAuthor);
+            cout << "Enter new Author (" << node->bookData.bookAuthor << "): ";
+            getline(cin, newAuthor);
 
-    cout << "Enter new ISBN (" << node->bookData.isbn << "): ";
-    getline(cin, newISBN);
+            cout << "Enter new ISBN (" << node->bookData.isbn << "): ";
+            getline(cin, newISBN);
 
-    cout << "Enter Total Copies (" << node->bookData.totalCopies << "): ";
-    cin >> newTotal;
+            cout << "Enter Total Copies (" << node->bookData.totalCopies << "): ";
+            cin >> newTotal;
 
-    cout << "Enter Available Copies (" << node->bookData.availableCopies << "): ";
-    cin >> newAvailable;
+            cout << "Enter Available Copies (" << node->bookData.availableCopies << "): ";
+            cin >> newAvailable;
 
-    if (newAvailable > newTotal) {
-        cout << "Available cannot exceed total. Edit canceled.\n";
-        return;
-    }
-    node->bookData.bookTitle = newTitle;
-    node->bookData.bookAuthor = newAuthor;
-    node->bookData.isbn = newISBN;
-    node->bookData.totalCopies = newTotal;
-    node->bookData.availableCopies = newAvailable;
-    node->bookData.availability = (newAvailable > 0);
+            if (newAvailable > newTotal) {
+                cout << "Available cannot exceed total. Edit canceled.\n";
+                return;
+            }
+            node->bookData.bookTitle = newTitle;
+            node->bookData.bookAuthor = newAuthor;
+            node->bookData.isbn = newISBN;
+            node->bookData.totalCopies = newTotal;
+            node->bookData.availableCopies = newAvailable;
+            node->bookData.availability = (newAvailable > 0);
 
-    cout << "Book updated successfully.\n";
-}
+            cout << "Book updated successfully.\n";
+        }
 
 
-//Search by title, create a new searchByTitleHelper
-void searchByTitle(string inputTitle){
-
+        //Search by title, create a new searchByTitleHelper
+        // Helper for case-insensitive, partial match for title
+        bool titleMatches(const string& title, const string& input) {
+            string titleLower = title, inputLower = input;
+            transform(titleLower.begin(), titleLower.end(), titleLower.begin(), ::tolower);
+            transform(inputLower.begin(), inputLower.end(), inputLower.begin(), ::tolower);
+            return titleLower.find(inputLower) != string::npos;
+        }
+        // Highlight matched substring in title using ANSI color
+        string highlightMatch(const string& title, const string& input) {
+            string titleLower = title, inputLower = input;
+            transform(titleLower.begin(), titleLower.end(), titleLower.begin(), ::tolower);
+            transform(inputLower.begin(), inputLower.end(), inputLower.begin(), ::tolower);
+            size_t pos = titleLower.find(inputLower);
+            if (pos != string::npos) {
+                return title.substr(0, pos) + "\033[1;33m" + title.substr(pos, input.length()) + "\033[0m" + title.substr(pos + input.length());
+            }
+            return title;
+        }
+        void searchByTitle(string inputTitle) {
+            vector<BookData> allBooks = inOrder();
+            vector<BookData> matches;
+            for (const auto& book : allBooks) {
+                if (titleMatches(book.bookTitle, inputTitle)) {
+                    matches.push_back(book);
+                }
+            }
+            int itemPerPage = 5;
+            int totalItem = matches.size();
+            int totalPage = (totalItem + itemPerPage - 1) / itemPerPage;
+            int currentPage = 1;
+            string navKey;
+            if (totalItem == 0) {
+                clearScreen();
+                cout << "No books found for title: " << inputTitle << endl;
+                cout << "Press any key to return..." << endl;
+                cin.ignore();
+                cin.get();
+                return;
+            }
+            while (true) {
+                clearScreen();
+                cout << "----- Search by Title -----" << endl;
+                cout << "Page " << currentPage << " of " << totalPage << endl;
+                cout << "Search input: " << inputTitle << endl;
+                cout << "Total Entries: " << totalItem << endl;
+                cout << endl;
+                int start = (currentPage - 1) * itemPerPage;
+                int end = min(start + itemPerPage, totalItem);
+                // Use print method to display current page
+                vector<BookData> pageBooks(matches.begin() + start, matches.begin() + end);
+                this->print(pageBooks);
+                cout << endl;
+                cout << "*********************************************************" << endl;
+                cout << "Navigation: previous page '<-', next page '->', exit 'q'" << endl;
+                navKey = readNav();
+                if (navKey == "left" && currentPage > 1) currentPage--;
+                else if (navKey == "right" && currentPage < totalPage) currentPage++;
+                else if (navKey == "exit") break;
+            }
         }
 
         //Search by author, create a new searchByAuthorHyper
+        // Helper for case-insensitive, partial match
+        bool authorMatches(const string& author, const string& input) {
+            string authorLower = author, inputLower = input;
+            transform(authorLower.begin(), authorLower.end(), authorLower.begin(), ::tolower);
+            transform(inputLower.begin(), inputLower.end(), inputLower.begin(), ::tolower);
+            return authorLower.find(inputLower) != string::npos;
+        }
+
         void searchByAuthor(string inputAuthorName){
+            vector<BookData> allBooks = inOrder();
+            vector<BookData> matches;
+            for (const BookData& book : allBooks) {
+                if (authorMatches(book.bookAuthor, inputAuthorName)) {
+                    matches.push_back(book);
+                }
+            }
             int itemPerPage = 5;
-            int totalPage;
-            int totalItem;
-            int currentPage;
-            vector<BookData> bookDataVector = searchByAuthorHelper(root, inputAuthorName);
-
-            vector<BookData>::iterator vector_itr;
-
-            totalItem = bookDataVector.size();
-            totalPage = (int)(totalItem/itemPerPage) + 1;
-            currentPage = 1;
+            int totalItem = matches.size();
+            int totalPage = (totalItem + itemPerPage - 1) / itemPerPage;
+            int currentPage = 1;
             string navKey;
-
-            int lower = 0;
-            while(1){
+            if (totalItem == 0) {
                 clearScreen();
-                lower = ((currentPage-1)) * itemPerPage;
+                cout << "----- Search by Author -----" << endl;
+                cout << "No books found for author: " << inputAuthorName << endl;
+                cout << "Press any key to return..." << endl;
+                cin.ignore();
+                cin.get();
+                return;
+            }
+            while (true) {
+                clearScreen();
                 cout << "----- Search by Author -----" << endl;
                 cout << "Page " << currentPage << " of " << totalPage << endl;
                 cout << "Search input: " << inputAuthorName << endl;
-                cout << "Total Entries: " << bookDataVector.size() << endl;
+                cout << "Total Entries: " << totalItem << endl;
                 cout << endl;
-
-                cout << setw(25) << left << "     Title" 
-                    << setw(20) << left << "     Author" 
-                    << setw(20) << left << "     Publish date" 
-                    << setw(11) << left << "     avaialable" 
-                    << endl;
-                
-                vector_itr = bookDataVector.begin();
-                
+                int start = (currentPage - 1) * itemPerPage;
+                int end = min(start + itemPerPage, totalItem);
+                // Use print method to display current page
+                if (matches.size() > 0) {
+                    vector<BookData> pageBooks(matches.begin() + start, matches.begin() + end);
+                    this->print(pageBooks);
+                }
+                cout << endl;
+                cout << "*********************************************************" << endl;
+                cout << "Navigation: previous page '<-', next page '->', exit 'q'" << endl;
+                navKey = readNav();
+                if (navKey == "left" && currentPage > 1) currentPage--;
+                else if (navKey == "right" && currentPage < totalPage) currentPage++;
+                else if (navKey == "exit") break;
             }
-
         }
 };
 #endif

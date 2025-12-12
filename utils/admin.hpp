@@ -68,7 +68,7 @@ class AdminList{
         //Display List of Admins
         void displayAdmin(){
             //testing
-            if(head == nulltpr){
+            if(head == nullptr){
                 cout<< "No admins avalilable.\n";
                 return;
             }
