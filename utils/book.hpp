@@ -177,24 +177,7 @@ class BookList{
 
         //Show book information
         void showBookInfo(string id){
-            BookNode* result = searchByIDHelper(root, id);
-            
-            if (result == nullptr){
-                cout << "Book ID " << id << " not found.\n";
-                return;
-            }
-        
-            BookData b = result->bookData;
-        
-            cout << "\n---------------- Book Information ----------------\n";
-            cout << "Book ID          : " << b.bookID << endl;
-            cout << "Title            : " << b.bookTitle << endl;
-            cout << "Author           : " << b.bookAuthor << endl;
-            cout << "ISBN             : " << b.isbn << endl;
-            cout << "Total Copies     : " << b.totalCopies << endl;
-            cout << "Available Copies : " << b.availableCopies << endl;
-            cout << "Availability     : " << (b.availability ? "Available" : "Not Available") << endl;
-            cout << "--------------------------------------------------\n";
+
         }
 
         //Insert book into a BST pre sorted lexographically
