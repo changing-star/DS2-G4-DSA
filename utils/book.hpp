@@ -1,6 +1,7 @@
 #ifndef book_hpp
 #define book_hpp
 #include "shared.hpp"
+#include <algorithm>
 
 struct BookData{
     string bookID;
@@ -36,23 +37,25 @@ class BookList{
         BookNode* root;
         int size;
 
-        BookNode *insertHelper(BookNode* node, BookData bookData){
-        
-            //String comparison
-            if (bookData.bookTitle < node->bookData.bookTitle){
-                node->left = insertHelper(node->left, bookData);
-            } else if (bookData.bookTitle > node->bookData.bookTitle){
-                node->right = insertHelper(node->right, bookData);
-            } else if (bookData.bookTitle == node->bookData.bookTitle){
-                node->bookData.bookID = bookData.bookID;
-                node->bookData.bookTitle = bookData.bookTitle;
-                node->bookData.bookAuthor = bookData.bookAuthor;
-                node->bookData.isbn = bookData.isbn;
-                node->bookData.totalCopies = bookData.totalCopies;
-                node->bookData.availableCopies = bookData.availableCopies;
-                node->bookData.availability = bookData.availability;
+        BookNode *insertHelper(BookNode* node, BookData* bookData){
+            // Handle empty subtree (base case)
+            if (node == nullptr) {
+                return new BookNode(*bookData);
             }
-            size++;
+            //String comparison
+            if (bookData->bookTitle < node->bookData.bookTitle){
+                node->left = insertHelper(node->left, bookData);
+            } else if (bookData->bookTitle > node->bookData.bookTitle){
+                node->right = insertHelper(node->right, bookData);
+            } else if (bookData->bookTitle == node->bookData.bookTitle){
+                node->bookData.bookID = bookData->bookID;
+                node->bookData.bookTitle = bookData->bookTitle;
+                node->bookData.bookAuthor = bookData->bookAuthor;
+                node->bookData.isbn = bookData->isbn;
+                node->bookData.totalCopies = bookData->totalCopies;
+                node->bookData.availableCopies = bookData->availableCopies;
+                node->bookData.availability = bookData->availability;
+            }
 
             return node;
         }
@@ -60,46 +63,117 @@ class BookList{
         BookNode *searchByIDHelper(BookNode *node, string id){
             if(node == nullptr){
                 return nullptr;
-            } else if (id == node->bookData.bookID){
+            } 
+
+            if (node->bookData.bookID == id) {
                 return node;
-            } else if (id > node->bookData.bookID){
-                return searchByIDHelper(node->right, id);
-            } else if (id < node->bookData.bookID){
-                return searchByIDHelper(node->left, id);
             }
+                
+            BookNode* leftResult = searchByIDHelper(node->left, id);
+            if (leftResult != nullptr) {
+                return leftResult;
+            }
+            return searchByIDHelper(node->right, id);
         }
 
         BookNode *getSuccessor(BookNode* curr){
+            if (curr == nullptr || curr->right == nullptr) {
+                return nullptr;
+            }
+            
+            // Successor is leftmost node in right subtree
             curr = curr->right;
-            while(curr != nullptr && curr->left != nullptr){
+            while (curr != nullptr && curr->left != nullptr) {
                 curr = curr->left;
             }
             return curr;
         }
 
+        string generateNextBookID() {
+            // Find the maximum existing ID number
+            int maxID = 0;
+            vector<BookData> allBooks = inOrder();
+            
+            for (const auto& book : allBooks) {
+                // Extract numeric part from "BID-XXX"
+                if (book.bookID.length() > 3 && book.bookID.substr(0, 4) == "BID-") {
+                    try {
+                        int num = stoi(book.bookID.substr(3));
+                        if (num > maxID) {
+                            maxID = num;
+                        }
+                    } catch (...) {
+                    }
+                }
+            }
+            
+            // Generate next ID
+            stringstream ss;
+            ss << "BID-" << setw(4) << setfill('0') << (maxID + 1);
+            return ss.str();
+        }
+
         BookNode *removeByIDHelper(BookNode *node, string id){
             if(node == nullptr){
                 return nullptr;
-            } else if (node->bookData.bookID > id){
-                node->left = removeByIDHelper(node->left, id);
-            } else if (node->bookData.bookID < id){
-                node->right = removeByIDHelper(node->right, id);
+            } 
+
+            if (node->bookData.bookID == id) {
+                if (node->left == nullptr) {
+                    BookNode* temp = node->right;
+                    delete node;
+                    size--;
+                    return temp;
+                } else if (node->right == nullptr) {
+                    BookNode* temp = node->left;
+                    delete node;
+                    size--;
+                    return temp;
+                } else {
+                    // Node has two children
+                    // Find inorder successor in title-sorted tree
+                    BookNode* succ = getSuccessor(node);
+                    // Copy successor's data to current node
+                    node->bookData = succ->bookData;
+                    // Delete the successor (which is in title-sorted position)
+                    node->right = removeByTitleHelper(node->right, succ->bookData.bookTitle);
+                    size--;
+                }
             } else {
-                if(node->left == nullptr){
+                // Not this node, search both subtrees
+                node->left = removeByIDHelper(node->left, id);
+                node->right = removeByIDHelper(node->right, id);
+            }
+            
+            return node;
+        }
+
+        BookNode* removeByTitleHelper(BookNode* node, string title) {
+            if (node == nullptr) {
+                return nullptr;
+            }
+            
+            if (title < node->bookData.bookTitle) {
+                node->left = removeByTitleHelper(node->left, title);
+            } else if (title > node->bookData.bookTitle) {
+                node->right = removeByTitleHelper(node->right, title);
+            } else {
+                // Found node to delete
+                if (node->left == nullptr) {
                     BookNode* temp = node->right;
                     delete node;
                     return temp;
-                }
-                if (node->right == nullptr){
+                } else if (node->right == nullptr) {
                     BookNode* temp = node->left;
                     delete node;
                     return temp;
+                } else {
+                    BookNode* succ = getSuccessor(node);
+                    node->bookData = succ->bookData;
+                    node->right = removeByTitleHelper(node->right, succ->bookData.bookTitle);
                 }
             }
-            BookNode* succ = getSuccessor(node);
-            node->bookData = succ->bookData;
-            node->right = removeByIDHelper(root->right, succ->bookData.bookID);
-            
+            return node;
         }
 
         vector<BookData> preOrderHelper(BookNode *node){
@@ -175,8 +249,9 @@ class BookList{
         }
 
         //Insert book into a BST pre sorted lexographically
-        void insert(BookData bookData){
+        void insert(BookData* bookData){
             root = insertHelper(root, bookData);
+            size++;
         }
 
         //Returns book node by ID
@@ -190,7 +265,6 @@ class BookList{
             removeByIDHelper(root, id);
         }
 
-        
         //Save BST of books into db file
         void saveBooksToFile(string filename){
             ofstream file(filename);
@@ -198,10 +272,8 @@ class BookList{
                 cout << "Error opening file " << filename << endl;
                 return;
             }
-
             vector<BookData> bookDataVector = inOrderHelper(root);
-            file << "index,book_id,title,author,isbn,total_copies,available_copies,availabilty" << 'endl'; 
-
+            file << "index,book_id,title,author,isbn,total_copies,available_copies,availability" << endl;
             int index = 1;
             for(const BookData& itr : bookDataVector){
                 file << index << ','
@@ -211,36 +283,36 @@ class BookList{
                     << itr.isbn << ','
                     << itr.totalCopies << ','
                     << itr.availableCopies << ','
-                    << itr.availability << endl ;
+                    << itr.availability << endl;
                 index++;
             }
-            
             file.close();
             cout << "Book data successfully saved to " << filename << endl;
         }
+
         //Load books from db and insert into BST
         void loadBooksFromFile(string filename){
             bool firstLine = true;
-
             ifstream file(filename);
             if(!file.is_open()){
                 cout << "Error opening file " << filename << endl;
                 return;
             }
-            
             string line;
             while(getline(file, line)){
+                // Skip header and blank/whitespace lines
                 if(firstLine){
                     firstLine = false;
                     continue;
                 }
-
+                if(line.empty() || all_of(line.begin(), line.end(), ::isspace)){
+                    continue;
+                }
                 istringstream iss(line);
                 int index;
                 string field;
-
-                BookData bookData;
-
+                BookData bookData; // stack allocation
+                // Parse index field
                 getline(iss, field, ',');
                 try{
                     index = stoi(field);
@@ -248,28 +320,36 @@ class BookList{
                     cerr << "Error converting index: " << e.what() << endl;
                     continue;
                 }
-
                 string totalCopiesField;
                 string availableCopiesField;
                 string availabilityField;
-                
+                // Parse all fields, with error handling
                 if(getline(iss, bookData.bookID, ',') &&
-                    getline(iss, bookData.bookTitle, ',') &&
-                    getline(iss, bookData.bookAuthor, ',') &&
-                    getline(iss, bookData.isbn, ',') &&
-                    getline(iss, totalCopiesField, ',') &&
-                    getline(iss, availableCopiesField, ',') &&     
-                    getline(iss, availabilityField, ',')){
+                   getline(iss, bookData.bookTitle, ',') &&
+                   getline(iss, bookData.bookAuthor, ',') &&
+                   getline(iss, bookData.isbn, ',') &&
+                   getline(iss, totalCopiesField, ',') &&
+                   getline(iss, availableCopiesField, ',') &&     
+                   getline(iss, availabilityField, ',')){
+                    try {
                         bookData.totalCopies = stoi(totalCopiesField);
                         bookData.availableCopies = stoi(availableCopiesField);
+                    } catch(const exception& e){
+                        cerr << "Error converting copies fields: " << e.what() << endl;
+                        continue;
+                    }
+                    try {
                         bookData.availability = solve(availabilityField);
-
-                        insert(bookData);
+                    } catch(const exception& e){
+                        cerr << "Error converting availability field: " << e.what() << endl;
+                        continue;
+                    }
+                    insert(&bookData);
+                } else {
+                    cerr << "Malformed line or missing fields: " << line << endl;
                 }
             }
-
             file.close();
-
         }
 
         //Prints the entire book list
@@ -399,12 +479,23 @@ class BookList{
 
         //ADMIN 
         //this needs to update total copies
-        void add(BookData inputBookData){
+        void add(BookData* inputBookData){
             //get total copies then + 1, use searchByIDHelper
             //Adding also incrementally increases bookID by 1, however it is a string so there 
             //needs to be regex str -> int -> str again
-            insert(inputBookData);
-            cout << "Book ID " << inputBookData.bookID << " has been added successfully." << endl;
+
+            BookData* bookData;
+
+            bookData->bookTitle = inputBookData->bookTitle;
+            bookData->bookAuthor = inputBookData->bookAuthor;
+            bookData->isbn = inputBookData->isbn;
+
+            string newID = generateNextBookID();
+            inputBookData->bookID = newID;
+            inputBookData->availability = (inputBookData->availableCopies > 0);
+            
+            insert(bookData);
+            cout << "Book ID " << inputBookData->bookID << " has been added successfully." << endl;
         }
 
         //Edit book by ID
@@ -550,6 +641,60 @@ class BookList{
                 cout << "----- Search by Author -----" << endl;
                 cout << "Page " << currentPage << " of " << totalPage << endl;
                 cout << "Search input: " << inputAuthorName << endl;
+                cout << "Total Entries: " << totalItem << endl;
+                cout << endl;
+                int start = (currentPage - 1) * itemPerPage;
+                int end = min(start + itemPerPage, totalItem);
+                // Use print method to display current page
+                if (matches.size() > 0) {
+                    vector<BookData> pageBooks(matches.begin() + start, matches.begin() + end);
+                    this->print(pageBooks);
+                }
+                cout << endl;
+                cout << "*********************************************************" << endl;
+                cout << "Navigation: previous page '<-', next page '->', exit 'q'" << endl;
+                navKey = readNav();
+                if (navKey == "left" && currentPage > 1) currentPage--;
+                else if (navKey == "right" && currentPage < totalPage) currentPage++;
+                else if (navKey == "exit") break;
+            }
+        }
+
+        // Helper for case-insensitive, partial match for ID
+        bool idMatches(const string& id, const string& input) {
+            string idLower = id, inputLower = input;
+            transform(idLower.begin(), idLower.end(), idLower.begin(), ::tolower);
+            transform(inputLower.begin(), inputLower.end(), inputLower.begin(), ::tolower);
+            return idLower.find(inputLower) != string::npos;
+        }
+
+        void searchById(string inputId){
+            vector<BookData> allBooks = inOrder();
+            vector<BookData> matches;
+            for (const BookData& book : allBooks) {
+                if (idMatches(book.bookID, inputId)) {
+                    matches.push_back(book);
+                }
+            }
+            int itemPerPage = 5;
+            int totalItem = matches.size();
+            int totalPage = (totalItem + itemPerPage - 1) / itemPerPage;
+            int currentPage = 1;
+            string navKey;
+            if (totalItem == 0) {
+                clearScreen();
+                cout << "----- Search by ID -----" << endl;
+                cout << "No books found for ID: " << inputId << endl;
+                cout << "Press any key to return..." << endl;
+                cin.ignore();
+                cin.get();
+                return;
+            }
+            while (true) {
+                clearScreen();
+                cout << "----- Search by ID -----" << endl;
+                cout << "Page " << currentPage << " of " << totalPage << endl;
+                cout << "Search input: " << inputId << endl;
                 cout << "Total Entries: " << totalItem << endl;
                 cout << endl;
                 int start = (currentPage - 1) * itemPerPage;
