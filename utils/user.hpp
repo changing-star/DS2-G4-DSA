@@ -80,31 +80,75 @@ class UserList{
 
         void displayUsers(){
             if(head == nullptr){
-                cout<< "No users avalilable.\n";
+                clearScreen();
+                cout << "No users available." << endl;
+                cout << "Press any key to return..." << endl;
+                cin.ignore();
+                cin.get();
                 return;
             }
+            
+            // Collect all users into a vector for pagination
+            vector<UserData> allUsers;
             UserNode* curr = head;
-            int index = 1;
-
-            cout << left << setw(6) <<"No."
-                 << setw(15) << "User ID"
-                 << setw(20) << "Username"
-                 << setw(40) << "Password (hashed)" << endl;
-
-            cout<< string(80, '-') << endl;
-
             while(curr != nullptr){
-                cout << left << setw(6) << index
-                     << setw(15) << curr -> userData.userID
-                     << setw(20) << curr -> userData.username
-                     << setw(40) << curr -> userData.userPassword
-                     << endl;
-
-                curr = curr -> next;
-                index++;
+                allUsers.push_back(curr->userData);
+                curr = curr->next;
             }
-
-
+            
+            int itemPerPage = 10;
+            cout << "Enter number of items per page (default 10): ";
+            string input;
+            getline(cin, input);
+            if (!input.empty()) {
+                try {
+                    int val = stoi(input);
+                    if (val > 0) itemPerPage = val;
+                    else cout << "Invalid input, using default 10." << endl;
+                } catch (...) {
+                    cout << "Invalid input, using default 10." << endl;
+                }
+            }
+            
+            int totalItem = allUsers.size();
+            int totalPage = (totalItem + itemPerPage - 1) / itemPerPage;
+            int currentPage = 1;
+            string navKey;
+            
+            while (true) {
+                clearScreen();
+                cout << "===== View all users =====" << endl;
+                cout << "Page " << currentPage << " of " << totalPage << endl;
+                cout << "Total users: " << totalItem << endl;
+                cout << endl;
+                
+                int start = (currentPage - 1) * itemPerPage;
+                int end = min(start + itemPerPage, totalItem);
+                
+                // Display header
+                cout << left << setw(6) << "No."
+                     << setw(15) << "User ID"
+                     << setw(20) << "Username"
+                     << setw(40) << "Password (hashed)" << endl;
+                cout << string(80, '-') << endl;
+                
+                // Display current page users
+                for(int i = start; i < end; i++){
+                    cout << left << setw(6) << (i + 1)
+                         << setw(15) << allUsers[i].userID
+                         << setw(20) << allUsers[i].username
+                         << setw(40) << allUsers[i].userPassword
+                         << endl;
+                }
+                
+                cout << endl;
+                cout << "*********************************************************" << endl;
+                cout << "Navigation: previous page '<-', next page '->', exit 'q'" << endl;
+                navKey = readNav();
+                if (navKey == "left" && currentPage > 1) currentPage--;
+                else if (navKey == "right" && currentPage < totalPage) currentPage++;
+                else if (navKey == "exit") break;
+            }
         }
 
         void edit(string inputID){

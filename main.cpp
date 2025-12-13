@@ -153,8 +153,8 @@ void AdminView(){
                 transactionData.type = TransactionType::BORROW;
 
                 cout << "Enter user ID: ";
+                cin >> inputUserID;
                 if(inputUserID.substr(0,5) == "USER-"){
-                    cin >> inputUserID;
                     transactionData.userID = inputUserID;
                 } else {
                     cout << "Invalid User ID";
@@ -163,24 +163,13 @@ void AdminView(){
                 }
 
                 cout << "Enter item ID: ";
+                cin >> inputItemID;
                 if(inputItemID.substr(0,4) == "BID-"){
-                    cin >> inputItemID;
                     transactionData.itemID = inputItemID;
                 } else {
                     cout << "Invalid Item ID";
                     return;
                     break;
-                }
-
-                cout << "Enter Related Transaction ID";
-                cin >> relatedTransactionIDField;
-
-                if(relatedTransactionIDField.substr(0,3) == "TR-" && transactionList.searchAndCompare(relatedTransactionIDField)){
-                    relatedTransactionID = relatedTransactionIDField;
-                    transactionData.relatedTransaction = relatedTransactionID;
-                } else {
-                    cout << "Invalid Related Transaction";
-                    relatedTransactionID = "NULL";
                 }
 
                 topTransactionData = transactionList.peek()->transactionData;
@@ -199,7 +188,7 @@ void AdminView(){
                 if(bookList.updateBorrow(inputItemID)){
                     bookList.saveBooksToFile("database/books.csv");
                     transactionList.addTransaction(transactionData);
-                    transactionList.saveTransactionToFile("database/transactions.hpp");
+                    transactionList.saveTransactionToFile("database/transactions.csv");
                 } else {
                     cout << "Borrow failed" << endl;
                 }
@@ -216,8 +205,8 @@ void AdminView(){
                 transactionData.type = TransactionType::RETURN;
 
                 cout << "Enter user ID: ";
+                cin >> inputUserID;
                 if(inputUserID.substr(0,5) == "USER-"){
-                    cin >> inputUserID;
                     transactionData.userID = inputUserID;
                 } else {
                     cout << "Invalid User ID";
@@ -226,8 +215,8 @@ void AdminView(){
                 }
 
                 cout << "Enter item ID: ";
+                cin >> inputItemID;
                 if(inputItemID.substr(0,4) == "BID-"){
-                    cin >> inputItemID;
                     transactionData.itemID = inputItemID;
                 } else {
                     cout << "Invalid Item ID";
@@ -281,7 +270,7 @@ void AdminView(){
                 if(bookList.updateReturn(inputItemID)){
                     bookList.saveBooksToFile("database/books.csv");
                     transactionList.addTransaction(transactionData);
-                    transactionList.saveTransactionToFile("database/transactions.hpp");
+                    transactionList.saveTransactionToFile("database/transactions.csv");
                 } else {
                     cout << "Return failed" << endl;
                 }

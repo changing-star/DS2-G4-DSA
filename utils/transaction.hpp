@@ -60,6 +60,8 @@ class TransactionNode{
             this->transactionData.userID = transactionData.userID;
             this->transactionData.itemID = transactionData.itemID;
             this->transactionData.type = transactionData.type;
+            this->transactionData.transactionTime = transactionData.transactionTime;
+            this->transactionData.relatedTransaction = transactionData.relatedTransaction;
 
             prev = next = nullptr;
         }
@@ -140,21 +142,23 @@ class TransactionList{
             return;
         }
 
-        file << "index,transaction_id,user_id,book_id,transaction_type,transaction_time,related_transaction" << 'endl';
+        file << "index,transaction_id,user_id,book_id,transaction_type,transaction_time,related_transaction" << endl;
 
         int index = 1;
         TransactionNode* curr = top;
-        while(top != nullptr){
+        while(curr != nullptr){
             file << index << ','
-                << top->transactionData.transactionID << ','
-                << top->transactionData.userID << ','
-                << top->transactionData.itemID << ','
-                << transactionTypeToString(top->transactionData.type) << ','
-                << top->transactionData.transactionTime << ','
-                << top->transactionData.relatedTransaction << endl;
+                << curr->transactionData.transactionID << ','
+                << curr->transactionData.userID << ','
+                << curr->transactionData.itemID << ','
+                << transactionTypeToString(curr->transactionData.type) << ','
+                << curr->transactionData.transactionTime << ','
+                << curr->transactionData.relatedTransaction << endl;
             index++;
-            top = top->prev;
+            curr = curr->prev;
         }
+        file.close();
+        cout << "Transaction data successfully saved to " << filename << endl;
     }
 
     void loadTransactionFromFile(string filename){
@@ -217,7 +221,11 @@ class TransactionList{
 
     void display() {
         if (isEmpty()) {
+            clearScreen();
             cout << "No transactions found." << endl;
+            cout << "Press any key to return..." << endl;
+            cin.ignore();
+            cin.get();
             return;
         }
 
@@ -244,7 +252,7 @@ class TransactionList{
 
         while (true) {
             clearScreen();
-            cout << "===== TRANSACTION HISTORY =====" << endl;
+            cout << "===== View All Transactions =====" << endl;
             cout << "Page " << currentPage << " of " << totalPage << endl;
             cout << "Total transactions: " << totalItem << endl;
             
@@ -260,11 +268,12 @@ class TransactionList{
 
             // Display header
             cout << setw(5) << left << "No."
-                 << setw(15) << left << "Transaction ID"
-                 << setw(10) << left << "User ID"
-                 << setw(10) << left << "Book ID"
+                 << setw(15) << left << "Trans ID"
+                 << setw(12) << left << "User ID"
+                 << setw(12) << left << "Book ID"
                  << setw(10) << left << "Type"
-                 << setw(20) << left << "Time" << endl;
+                 << setw(15) << left << "Time"
+                 << setw(15) << left << "Related" << endl;
             cout << string(80, '-') << endl;
 
             // Display current page
@@ -275,16 +284,19 @@ class TransactionList{
                 const auto& trans = transactions[i];
                 cout << setw(5) << left << (i + 1)
                      << setw(15) << left << trans.transactionID
-                     << setw(10) << left << trans.userID
-                     << setw(10) << left << trans.itemID
+                     << setw(12) << left << trans.userID
+                     << setw(12) << left << trans.itemID
                      << setw(10) << left << transactionTypeToString(trans.type)
-                     << setw(20) << left << trans.transactionTime << endl;
+                     << setw(15) << left << trans.transactionTime
+                     << setw(15) << left << (trans.relatedTransaction.empty() || trans.relatedTransaction == "NULL" ? "-" : trans.relatedTransaction)
+                     << endl;
             }
 
             cout << endl;
+            cout << "*********************************************************" << endl;
             cout << "Navigation: previous page '<-', next page '->', exit 'q'" << endl;
             
-            navKey = readNav();  // Assuming you have this function
+            navKey = readNav();
             if (navKey == "left" && currentPage > 1) currentPage--;
             else if (navKey == "right" && currentPage < totalPage) currentPage++;
             else if (navKey == "exit") break;

@@ -386,6 +386,68 @@ class BookList{
             }
         }
 
+        // Helper function to get visible length of string (excluding ANSI codes)
+        size_t getVisibleLength(const string& str) {
+            size_t visibleLen = 0;
+            bool inEscape = false;
+            for (char c : str) {
+                if (c == '\033') {
+                    inEscape = true;
+                } else if (inEscape && c == 'm') {
+                    inEscape = false;
+                } else if (!inEscape) {
+                    visibleLen++;
+                }
+            }
+            return visibleLen;
+        }
+
+        // Helper function to pad string to specific width (accounting for ANSI codes)
+        string padString(const string& str, size_t width) {
+            size_t visibleLen = getVisibleLength(str);
+            if (visibleLen >= width) {
+                return str;
+            }
+            return str + string(width - visibleLen, ' ');
+        }
+
+        //Prints any vector of books with highlighted search keyword
+        void print(const vector<BookData>& bookDataVector, const string& searchKeyword, const string& searchField){
+            if(bookDataVector.empty()) {
+                cout << "No books available in the library." << endl;
+                return;
+            }
+            cout<< setw(5) << left << "No:" 
+                << setw(15) << left << "Book ID" 
+                << setw(30) << left << "Title" 
+                << setw(25) << left << "Author" 
+                << setw(15) << left << "ISBN" 
+                << setw(10) << left << "Total" 
+                << setw(10) << left << "Available" 
+                << setw(10) << left << "Status" << endl;
+            int index = 1;
+            for(const BookData& book : bookDataVector) {
+                string displayTitle = book.bookTitle;
+                
+                // Apply highlighting based on search field
+                if(searchField == "title") {
+                    displayTitle = highlightMatch(book.bookTitle, searchKeyword);
+                }
+                
+                // Manually pad strings to account for ANSI codes
+                cout << padString(to_string(index), 5)
+                    << padString(book.bookID, 15)
+                    << padString(displayTitle, 30)
+                    << padString(book.bookAuthor, 25)
+                    << padString(book.isbn, 15)
+                    << padString(to_string(book.totalCopies), 10)
+                    << padString(to_string(book.availableCopies), 10)
+                    << padString((book.availability ? "Yes" : "No"), 10)
+                    << endl;
+                    index++;
+            }
+        }
+
         //Display and change tui i guess, ill do this one
         void transformList(){
             vector<BookData> bookDataVector = inOrder();
@@ -592,9 +654,9 @@ class BookList{
                 cout << endl;
                 int start = (currentPage - 1) * itemPerPage;
                 int end = min(start + itemPerPage, totalItem);
-                // Use print method to display current page
+                // Use print method to display current page with highlighting
                 vector<BookData> pageBooks(matches.begin() + start, matches.begin() + end);
-                this->print(pageBooks);
+                this->print(pageBooks, inputTitle, "title");
                 cout << endl;
                 cout << "*********************************************************" << endl;
                 cout << "Navigation: previous page '<-', next page '->', exit 'q'" << endl;
@@ -645,10 +707,10 @@ class BookList{
                 cout << endl;
                 int start = (currentPage - 1) * itemPerPage;
                 int end = min(start + itemPerPage, totalItem);
-                // Use print method to display current page
+                // Use print method to display current page with highlighting
                 if (matches.size() > 0) {
                     vector<BookData> pageBooks(matches.begin() + start, matches.begin() + end);
-                    this->print(pageBooks);
+                    this->print(pageBooks, inputAuthorName, "author");
                 }
                 cout << endl;
                 cout << "*********************************************************" << endl;
@@ -660,19 +722,11 @@ class BookList{
             }
         }
 
-        // Helper for case-insensitive, partial match for ID
-        bool idMatches(const string& id, const string& input) {
-            string idLower = id, inputLower = input;
-            transform(idLower.begin(), idLower.end(), idLower.begin(), ::tolower);
-            transform(inputLower.begin(), inputLower.end(), inputLower.begin(), ::tolower);
-            return idLower.find(inputLower) != string::npos;
-        }
-
         void searchById(string inputId){
             vector<BookData> allBooks = inOrder();
             vector<BookData> matches;
             for (const BookData& book : allBooks) {
-                if (idMatches(book.bookID, inputId)) {
+                if (book.bookID == inputId) {
                     matches.push_back(book);
                 }
             }
@@ -699,7 +753,7 @@ class BookList{
                 cout << endl;
                 int start = (currentPage - 1) * itemPerPage;
                 int end = min(start + itemPerPage, totalItem);
-                // Use print method to display current page
+                // Use print method to display current page (no highlighting for ID search)
                 if (matches.size() > 0) {
                     vector<BookData> pageBooks(matches.begin() + start, matches.begin() + end);
                     this->print(pageBooks);
