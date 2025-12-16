@@ -65,7 +65,7 @@ class BookList{
                 return nullptr;
             } 
 
-            if (node->bookData.bookID == id) {
+            if (normalizeID(node->bookData.bookID) == normalizeID(id)) {
                 return node;
             }
                 
@@ -118,7 +118,7 @@ class BookList{
                 return nullptr;
             } 
 
-            if (node->bookData.bookID == id) {
+            if (normalizeID(node->bookData.bookID) == normalizeID(id)) {
                 if (node->left == nullptr) {
                     BookNode* temp = node->right;
                     delete node;
@@ -339,7 +339,7 @@ class BookList{
                         continue;
                     }
                     try {
-                        bookData.availability = solve(availabilityField);
+                        bookData.availability = parseBool(availabilityField);
                     } catch(const exception& e){
                         cerr << "Error converting availability field: " << e.what() << endl;
                         continue;
@@ -726,7 +726,7 @@ class BookList{
             vector<BookData> allBooks = inOrder();
             vector<BookData> matches;
             for (const BookData& book : allBooks) {
-                if (book.bookID == inputId) {
+                if (normalizeID(book.bookID) == normalizeID(inputId)) {
                     matches.push_back(book);
                 }
             }

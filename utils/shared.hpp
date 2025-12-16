@@ -21,6 +21,34 @@ bool solve(string ip) {
    return op;
 }
 
+// Parse boolean from string, supporting both numeric (1/0) and text (true/false) formats
+bool parseBool(const string& str) {
+    // Trim whitespace
+    string trimmed = str;
+    trimmed.erase(0, trimmed.find_first_not_of(" \t\n\r"));
+    trimmed.erase(trimmed.find_last_not_of(" \t\n\r") + 1);
+    
+    // Check for numeric format (1 or 0)
+    if (trimmed == "1") return true;
+    if (trimmed == "0") return false;
+    
+    // Check for text format (true/false, case-insensitive)
+    string lower = trimmed;
+    transform(lower.begin(), lower.end(), lower.begin(), ::tolower);
+    if (lower == "true") return true;
+    if (lower == "false") return false;
+    
+    // Default to false if unrecognized
+    return false;
+}
+
+// Normalize ID to uppercase for case-insensitive comparison
+string normalizeID(const string& id) {
+    string normalized = id;
+    transform(normalized.begin(), normalized.end(), normalized.begin(), ::toupper);
+    return normalized;
+}
+
 
 // detect OS
 #ifdef _WIN32

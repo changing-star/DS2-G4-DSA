@@ -211,7 +211,7 @@ class TransactionList{
     bool searchAndCompare(string transactionID){
         TransactionNode* curr = top;
         while(curr != nullptr){
-            if(curr->transactionData.transactionID == transactionID){
+            if(normalizeID(curr->transactionData.transactionID) == normalizeID(transactionID)){
                 return true;
             }
             curr = curr->prev;

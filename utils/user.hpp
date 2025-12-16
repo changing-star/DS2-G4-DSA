@@ -159,7 +159,7 @@ class UserList{
 
             UserNode* curr = head;
             while(curr != nullptr){
-                if(curr->userData.userID == inputID){
+                if(normalizeID(curr->userData.userID) == normalizeID(inputID)){
                     string passwordField;
                     cout << "User found. Enter new Info: " << endl;
                     cout << "Enter new Username: ";
@@ -308,7 +308,7 @@ class UserList{
                 cout << md5Hash(inputPassword) << endl;
                 cout << curr->userData.userPassword << endl;
 
-                if(curr->userData.userID == inputId && curr->userData.userPassword == md5Hash(inputPassword)){
+                if(normalizeID(curr->userData.userID) == normalizeID(inputId) && curr->userData.userPassword == md5Hash(inputPassword)){
                     cout << "goon";
                     return true;
                 }

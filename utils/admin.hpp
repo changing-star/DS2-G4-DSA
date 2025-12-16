@@ -119,7 +119,7 @@ class AdminList{
             }
 
             AdminNode* curr = head;
-            while (curr != nullptr && curr->adminData.adminID != adminID) {
+            while (curr != nullptr && normalizeID(curr->adminData.adminID) != normalizeID(adminID)) {
                 curr = curr->next;
             }
 
@@ -221,7 +221,7 @@ class AdminList{
         bool searchAndCompare(string inputId, string inputPassword){
             AdminNode* curr = head;
             while(curr != nullptr){
-                if(curr->adminData.adminID == inputId && curr->adminData.adminPassword == md5Hash(inputPassword)){
+                if(normalizeID(curr->adminData.adminID) == normalizeID(inputId) && curr->adminData.adminPassword == md5Hash(inputPassword)){
                     return true;
                 }
                 curr = curr->next;

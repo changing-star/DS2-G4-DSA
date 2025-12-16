@@ -154,7 +154,7 @@ void AdminView(){
 
                 cout << "Enter user ID: ";
                 cin >> inputUserID;
-                if(inputUserID.substr(0,5) == "USER-"){
+                if(normalizeID(inputUserID).substr(0,5) == "USER-"){
                     transactionData.userID = inputUserID;
                 } else {
                     cout << "Invalid User ID";
@@ -164,7 +164,7 @@ void AdminView(){
 
                 cout << "Enter item ID: ";
                 cin >> inputItemID;
-                if(inputItemID.substr(0,4) == "BID-"){
+                if(normalizeID(inputItemID).substr(0,4) == "BID-"){
                     transactionData.itemID = inputItemID;
                 } else {
                     cout << "Invalid Item ID";
@@ -206,7 +206,7 @@ void AdminView(){
 
                 cout << "Enter user ID: ";
                 cin >> inputUserID;
-                if(inputUserID.substr(0,5) == "USER-"){
+                if(normalizeID(inputUserID).substr(0,5) == "USER-"){
                     transactionData.userID = inputUserID;
                 } else {
                     cout << "Invalid User ID";
@@ -216,7 +216,7 @@ void AdminView(){
 
                 cout << "Enter item ID: ";
                 cin >> inputItemID;
-                if(inputItemID.substr(0,4) == "BID-"){
+                if(normalizeID(inputItemID).substr(0,4) == "BID-"){
                     transactionData.itemID = inputItemID;
                 } else {
                     cout << "Invalid Item ID";
@@ -229,8 +229,8 @@ void AdminView(){
 
                 while (curr != nullptr) {
                     if (curr->transactionData.type == TransactionType::BORROW &&
-                        curr->transactionData.itemID == inputItemID &&
-                        curr->transactionData.userID == inputUserID) {
+                        normalizeID(curr->transactionData.itemID) == normalizeID(inputItemID) &&
+                        normalizeID(curr->transactionData.userID) == normalizeID(inputUserID)) {
                         
                         if (curr->transactionData.relatedTransaction == "" || 
                             curr->transactionData.relatedTransaction == "NULL") {
