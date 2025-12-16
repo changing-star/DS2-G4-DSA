@@ -18,7 +18,7 @@ class AdminNode{
         AdminNode(AdminData adminData){
             this->adminData.adminID = adminData.adminID;
             this->adminData.adminUsername = adminData.adminUsername;
-            this->adminData.adminPassword = md5Hash(adminData.adminPassword);
+            this->adminData.adminPassword = adminData.adminPassword;
             prev = next = nullptr;
         }
 
@@ -39,6 +39,12 @@ class AdminList{
         int getSize(){
             return size;
         }
+
+        bool isEmpty(){
+            return head==nullptr;
+        }
+
+
 
         //Insert Front
         void insertFront(AdminData adminData){
@@ -67,8 +73,7 @@ class AdminList{
         }
         //Display List of Admins
         void displayAdmin(){
-            //testing
-            if(head == nulltpr){
+            if(head == nullptr){
                 cout<< "No admins avalilable.\n";
                 return;
             }
@@ -95,87 +100,55 @@ class AdminList{
 
         }
 
-         //Remove Front
-         void removeFront(){
-            if (head == nullptr) {
-                cout << "List is empty. Nothing to remove!" << endl;
-                return;
-            }
+        //Remove Front
+        void removeFront(){
 
-            // If only ONE node
-            if (head == tail) {
-                delete head;
-                head = tail = nullptr;
-            }
-            else {
-                AdminNode* temp = head;
-                head = head->next;   // move head forward
-                head->prev = nullptr; 
-                delete temp;
-            }
-
-            size--;
-            cout << "First admin removed successfully!" << endl;\
         }
 
         //Remove Back
         void removeBack(){
-            if(tail == nullptr){
-                return; // list empty
-            }
 
-            AdminNode* toDelete = tail;
-
-            if(head == tail){
-                // single element
-                head = tail = nullptr;
-            } else {
-                tail = tail->prev;
-                if(tail) tail->next = nullptr;
-            }
-
-            delete toDelete;
-            if(size > 0) size--;
         }
+        
 
         //Remove by ID
         void removeByID(string adminID) {
-    if (head == nullptr) {
-        cout << "Admin list is empty.\n";
-        return;
-    }
+            if (isEmpty()) {
+                cout << "Admin list is empty.\n";
+                return;
+            }
 
-    AdminNode* curr = head;
-    while (curr != nullptr && curr->adminData.adminID != adminID) {
-        curr = curr->next;
-    }
+            AdminNode* curr = head;
+            while (curr != nullptr && normalizeID(curr->adminData.adminID) != normalizeID(adminID)) {
+                curr = curr->next;
+            }
 
-    if (curr == nullptr) {
-        cout << "Admin ID " << adminID << " not found.\n";
-        return;
-    }
-    if (curr == head) {
-        head = head->next;
-        if (head != nullptr)
-            head->prev = nullptr;
-        else
-            tail = nullptr; 
-    }
-    else if (curr == tail) {
-        tail = tail->prev;
-        if (tail != nullptr)
-            tail->next = nullptr;
-    }
-    else {
-        curr->prev->next = curr->next;
-        curr->next->prev = curr->prev;
-    }
+            if (curr == nullptr) {
+                cout << "Admin ID " << adminID << " not found.\n";
+                return;
+            }
+            if (curr == head) {
+                head = head->next;
+                if (head != nullptr)
+                    head->prev = nullptr;
+                else
+                    tail = nullptr; 
+            }
+            else if (curr == tail) {
+                tail = tail->prev;
+                if (tail != nullptr)
+                    tail->next = nullptr;
+            }
+            else {
+                curr->prev->next = curr->next;
+                curr->next->prev = curr->prev;
+            }
 
-    delete curr;
-    size--;
+            delete curr;
+            size--;
 
-    cout << "Admin ID " << adminID << " removed successfully.\n";
-}
+            cout << "Admin ID " << adminID << " removed successfully.\n";
+        }
 
         //Save Admins to file
         void saveAdminToFile(string filename){
@@ -248,7 +221,7 @@ class AdminList{
         bool searchAndCompare(string inputId, string inputPassword){
             AdminNode* curr = head;
             while(curr != nullptr){
-                if(curr->adminData.adminID == inputId && curr->adminData.adminPassword == md5Hash(inputPassword)){
+                if(normalizeID(curr->adminData.adminID) == normalizeID(inputId) && curr->adminData.adminPassword == md5Hash(inputPassword)){
                     return true;
                 }
                 curr = curr->next;
