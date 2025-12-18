@@ -75,7 +75,7 @@ void UserView(){
         cout << "1. View all Books" << endl;
         cout << "2. Search book by title" << endl;
         cout << "3. Search book by author" << endl;
-        cout << "4. Search book by ID" << endl;
+        // cout << "4. Search book by ID" << endl;
         cout << "0. Exit" << endl;
 
         cout << "Enter Option: ";
@@ -148,7 +148,6 @@ void AdminView(){
             case 1:{ // Borrow book
                 string transactionID, inputItemID, inputUserID, relatedTransactionIDField, relatedTransactionID;
                 TransactionData transactionData;
-                TransactionData topTransactionData;
 
                 transactionData.type = TransactionType::BORROW;
 
@@ -158,7 +157,8 @@ void AdminView(){
                     transactionData.userID = inputUserID;
                 } else {
                     cout << "Invalid User ID";
-                    return;
+                    cin.ignore();
+                    cin.get();
                     break;
                 }
 
@@ -168,22 +168,29 @@ void AdminView(){
                     transactionData.itemID = inputItemID;
                 } else {
                     cout << "Invalid Item ID";
-                    return;
+                    cin.ignore();
+                    cin.get();
                     break;
                 }
 
-                topTransactionData = transactionList.peek()->transactionData;
-                string currentTransactionID = topTransactionData.transactionID;
-                string numberPart = currentTransactionID.substr(3);
-                int number = stoi(numberPart);
-                number++;
-                string newNumber = to_string(number);
-                while (newNumber.length() < 3) {
-                    newNumber = "0" + newNumber;
+                // Check if transaction list is empty to avoid null pointer dereference
+                if (!transactionList.isEmpty()) {
+                    TransactionNode* topNode = transactionList.peek();
+                    string currentTransactionID = topNode->transactionData.transactionID;
+                    string numberPart = currentTransactionID.substr(3);
+                    int number = stoi(numberPart);
+                    number++;
+                    stringstream ss;
+                    ss << "TR-" << setw(3) << setfill('0') << number;
+                    transactionID = ss.str();
+                } else {
+                    // First transaction
+                    transactionID = "TR-001";
                 }
-                transactionID = "TR-" + newNumber;
+                
                 transactionData.transactionID = transactionID;
-                transactionData.transactionTime = to_string(time(NULL));        
+                transactionData.transactionTime = to_string(time(NULL));
+                transactionData.relatedTransaction = "";
 
                 if(bookList.updateBorrow(inputItemID)){
                     bookList.saveBooksToFile("database/books.csv");
@@ -282,16 +289,17 @@ void AdminView(){
             }
             case 4: { //Add users
                 string inputPassword;
-                UserData* userData;
+                UserData userData;
                 cout << "Enter a new user name: ";
-                cin >> userData->username;
+                cin.ignore();
+                getline(cin, userData.username);
                 cout << "Enter a new user password: ";
-                cin >> inputPassword;
+                getline(cin, inputPassword);
 
-                userData->userPassword = md5Hash(inputPassword);
+                userData.userPassword = md5Hash(inputPassword);
                 inputPassword = "";
 
-                userData->createdAt = to_string(time(NULL));        
+                userData.createdAt = to_string(time(NULL));        
 
                 UserNode* tailNode = userList.getTail();
 
@@ -304,8 +312,13 @@ void AdminView(){
                 ss << "USER-" << setw(5) << setfill('0') << number;
                 userID = ss.str();
 
-                userData->userID = userID;
+                userData.userID = userID;
                 
+                userList.insertBack(userData);
+                userList.saveUserToFile("database/user.csv");
+                
+                cout << "User " << userData.userID << " added successfully!" << endl;
+                cin.get();
                 break;
             }
             case 5:{ // Edit User
@@ -329,14 +342,14 @@ void AdminView(){
                 break;
             }
             case 8: { //Add Book
-                BookData* bookData;
+                BookData bookData;
                 cout << "Enter book title: ";
                 cin.ignore();
-                getline(cin, bookData->bookTitle);
+                getline(cin, bookData.bookTitle);
                 cout << "Enter book author name: ";
-                getline(cin, bookData->bookAuthor);;
+                getline(cin, bookData.bookAuthor);
                 cout << "Enter book ISBN: ";
-                getline(cin, bookData->isbn);
+                getline(cin, bookData.isbn);
 
                 cout << "Enter total copies: ";
                 string totalCopiesField;
@@ -347,11 +360,11 @@ void AdminView(){
                     cin >> totalCopiesField;
                 }
 
-                bookData->totalCopies = stoi(totalCopiesField);
+                bookData.totalCopies = stoi(totalCopiesField);
 
-                bookData->availableCopies = bookData->totalCopies;
+                bookData.availableCopies = bookData.totalCopies;
 
-                bookList.add(bookData);
+                bookList.add(&bookData);
                 bookList.saveBooksToFile("database/books.csv");
                 break;
             }

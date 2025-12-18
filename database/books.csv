@@ -1,3 +1,6 @@
 index,book_id,title,author,isbn,total_copies,available_copies,availability
-1,BID-02,Algorithm,Quant,10-1999,2,2,1
-2,BID-01,How to train your dragon,John,12-2002,2,2,1
+1,BID-0002,Algorithm,Quant,10-1999,2,2,1
+2,BID-0004,Crime and Punishment,Fyodor Dostoevsky,1233123,4,4,1
+4,BID-0001,Notes from the Underground,Fyodor Dostoevsky,123551,2,2,1
+5,BID-0005,The Plague,Albert Camus,12-2002,2,2,1
+6,BID-0003,The Stranger,Albert Camus,12-2002,2,2,1

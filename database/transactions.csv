@@ -1,1 +1,5 @@
 index,transaction_id,user_id,book_id,transaction_type,transaction_time,related_transaction
+1,TR-004,USER-01,BID-01,RETURN,1766038861,TR-003
+2,TR-003,USER-01,BID-01,BORROW,1766038821,
+3,TR-02,USER-01,BID-01,RETURN,1231233311,TR-001
+4,TR-01,USER-01,BID-01,BORROW,1231233311,NULL

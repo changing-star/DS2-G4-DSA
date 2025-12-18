@@ -95,10 +95,10 @@ class BookList{
             vector<BookData> allBooks = inOrder();
             
             for (const auto& book : allBooks) {
-                // Extract numeric part from "BID-XXX"
-                if (book.bookID.length() > 3 && book.bookID.substr(0, 4) == "BID-") {
+                // Extract numeric part from "BID-XXXX"
+                if (book.bookID.length() > 4 && book.bookID.substr(0, 4) == "BID-") {
                     try {
-                        int num = stoi(book.bookID.substr(3));
+                        int num = stoi(book.bookID.substr(4));
                         if (num > maxID) {
                             maxID = num;
                         }
@@ -546,17 +546,11 @@ class BookList{
             //Adding also incrementally increases bookID by 1, however it is a string so there 
             //needs to be regex str -> int -> str again
 
-            BookData* bookData;
-
-            bookData->bookTitle = inputBookData->bookTitle;
-            bookData->bookAuthor = inputBookData->bookAuthor;
-            bookData->isbn = inputBookData->isbn;
-
             string newID = generateNextBookID();
             inputBookData->bookID = newID;
             inputBookData->availability = (inputBookData->availableCopies > 0);
             
-            insert(bookData);
+            insert(inputBookData);
             cout << "Book ID " << inputBookData->bookID << " has been added successfully." << endl;
         }
 
@@ -753,7 +747,7 @@ class BookList{
                 cout << endl;
                 int start = (currentPage - 1) * itemPerPage;
                 int end = min(start + itemPerPage, totalItem);
-                // Use print method to display current page (no highlighting for ID search)
+
                 if (matches.size() > 0) {
                     vector<BookData> pageBooks(matches.begin() + start, matches.begin() + end);
                     this->print(pageBooks);
